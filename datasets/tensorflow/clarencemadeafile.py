@@ -64,3 +64,56 @@ plt.show()
 model.export(export_dir='.')
 model.export(export_dir='.', export_format=ExportFormat.LABEL)
 model.evaluate_tflite('model.tflite', test_data)
+
+
+#test
+# Function to classify a single frame
+def classify_frame(frame, model):
+    preprocessed_frame = preprocess_image(frame)
+    prediction = model.predict(np.expand_dims(preprocessed_frame, axis=0))
+    label = np.argmax(prediction)
+    return label
+
+# Video file path
+video_path = "path/to/your/video.mp4"
+
+# Load the video using OpenCV
+cap = cv2.VideoCapture(video_path)
+
+# Initialize an empty list to store the frame classifications
+frame_classifications = []
+
+# Loop through the frames of the video
+while True:
+    # Read the next frame
+    ret, frame = cap.read()
+
+    # Break the loop if the video has ended
+    if not ret:
+        break
+
+    # Convert the frame to RGB format
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+    # Classify the frame
+    label = classify_frame(frame_rgb, model)
+
+    # Add the frame classification to the list
+    frame_classifications.append(label)
+
+    # Display the frame
+    cv2.imshow("Video", frame)
+
+    # Break the loop if the 'q' key is pressed
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+# Release the video capture and close the OpenCV windows
+cap.release()
+cv2.destroyAllWindows()
+
+# Convert the frame classifications to a numpy array
+frame_classifications = np.array(frame_classifications)
+
+# Print the frame classifications
+print("Frame Classifications:", frame_classifications)
