@@ -1,5 +1,5 @@
 import os
-
+import cv2
 import numpy as np
 
 import tensorflow as tf
@@ -65,7 +65,7 @@ model.export(export_dir='.')
 model.export(export_dir='.', export_format=ExportFormat.LABEL)
 model.evaluate_tflite('model.tflite', test_data)
 
-
+'''
 #test
 # Function to classify a single frame
 def classify_frame(frame, model):
@@ -75,7 +75,7 @@ def classify_frame(frame, model):
     return label
 
 # Video file path
-video_path = "path/to/your/video.mp4"
+video_path = "./../vid2.mp4"
 
 # Load the video using OpenCV
 cap = cv2.VideoCapture(video_path)
@@ -117,3 +117,4 @@ frame_classifications = np.array(frame_classifications)
 
 # Print the frame classifications
 print("Frame Classifications:", frame_classifications)
+'''
