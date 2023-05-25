@@ -1,5 +1,5 @@
 import os
-
+import cv2
 import numpy as np
 
 import tensorflow as tf
@@ -49,6 +49,7 @@ def get_label_color(val1, val2):
 # dataset, we will highlight it in red color.
 plt.figure(figsize=(20, 20))
 predicts = model.predict_top_k(test_data)
+'''
 for i, (image, label) in enumerate(test_data.gen_dataset().unbatch().take(100)):
     ax = plt.subplot(10, 10, i+1)
     plt.xticks([])
@@ -61,11 +62,14 @@ for i, (image, label) in enumerate(test_data.gen_dataset().unbatch().take(100)):
     ax.xaxis.label.set_color(color)
     plt.xlabel('Predicted: %s' % predict_label)
 plt.show()
+'''
+for i in range(0,20):
+    print("done classifing stuff")
 model.export(export_dir='.')
 model.export(export_dir='.', export_format=ExportFormat.LABEL)
+
 model.evaluate_tflite('model.tflite', test_data)
-
-
+'''
 #test
 # Function to classify a single frame
 def classify_frame(frame, model):
@@ -75,7 +79,7 @@ def classify_frame(frame, model):
     return label
 
 # Video file path
-video_path = "path/to/your/video.mp4"
+video_path = "./../vid2.mp4"
 
 # Load the video using OpenCV
 cap = cv2.VideoCapture(video_path)
@@ -116,4 +120,7 @@ cv2.destroyAllWindows()
 frame_classifications = np.array(frame_classifications)
 
 # Print the frame classifications
+
+
 print("Frame Classifications:", frame_classifications)
+'''
