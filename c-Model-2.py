@@ -1,6 +1,9 @@
 import tensorflow as tf
 import tensorflow_datasets as tfds
+from tensorflow.keras.callbacks import TensorBoard
 import numpy as np
+import datetime
+
 
 def normalize_sequence(sequence, label):
     """Normalizes sequence values: `uint8` -> `float32`."""
@@ -13,7 +16,7 @@ falling_data = np.loadtxt('./datasets/model2_data/falling.txt')
 # Prepare input and output data
 inputs = np.concatenate((default_data, falling_data))
 outputs = np.concatenate((np.zeros(len(default_data)), np.ones(len(falling_data))))
-
+'''
 # Split data into training and testing sets
 train_size = int(0.8 * len(inputs))
 train_inputs, test_inputs = inputs[:train_size], inputs[train_size:]
@@ -36,6 +39,11 @@ train_dataset = train_dataset.prefetch(tf.data.AUTOTUNE)
 test_dataset = test_dataset.cache()
 test_dataset = test_dataset.batch(128)
 test_dataset = test_dataset.prefetch(tf.data.AUTOTUNE)
+'''
+
+# Convert inputs and outputs to TensorFlow Dataset
+dataset = tf.data.Dataset.from_tensor_slices((inputs, outputs))
+dataset = dataset.shuffle(len(inputs)).batch(128)
 
 # Define the model
 model = tf.keras.models.Sequential([
@@ -46,10 +54,16 @@ model = tf.keras.models.Sequential([
 # Compile the model
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
+log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+
+model.fit(dataset, epochs=6,callbacks=[tensorboard_callback])
 # Train the model
-model.fit(train_dataset, epochs=6, validation_data=test_dataset)
+#model.fit(train_dataset, epochs=6, validation_data=test_dataset,callbacks=[tensorboard_callback])
 
 model.save("c_model2_export")
+
+
 
 # Load the saved model
 model = tf.keras.models.load_model('c_model2_export')
@@ -82,7 +96,7 @@ for i in range(num_sequences):
     sequence = new_data[i * sequence_length: (i + 1) * sequence_length]
     probability = predict_falling(sequence, model)
     print(probability)
-    is_falling = probability > 0.5  # Apply threshold for classification
+    is_falling = probability > 0.609  # Apply threshold for classification
     print(f"Sequence {i+1}: {'Falling' if is_falling else 'Not Falling'}")
 '''
 # Train the model
