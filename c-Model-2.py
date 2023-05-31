@@ -49,7 +49,37 @@ model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy']
 # Train the model
 model.fit(train_dataset, epochs=6, validation_data=test_dataset)
 
+model.save("c_model2_export")
 
+def normalize_sequence(sequence):
+    """Normalizes sequence values: `uint8` -> `float32`."""
+    return tf.cast(sequence, tf.float32) / 255.
+
+#Test on a .txt file
+def predict_falling(sequence, model):
+    """Predicts if a sequence is falling using the trained model."""
+    normalized_sequence = normalize_sequence(sequence)
+    predictions = model.predict(np.expand_dims(normalized_sequence, axis=0))
+    return predictions[0][0]
+
+# Load the trained model
+model = tf.keras.models.load_model('c_model2_export')
+new_data = []
+with open('./datasets/model2_data/falling.txt', 'r') as file:
+    for line in file:
+        sequence = [float(value) for value in line.strip().split()]
+        new_data.extend(sequence)
+
+new_data = np.array(new_data)
+
+# Process the new data in sequences of 16 frames
+sequence_length = 16
+num_sequences = len(new_data) // sequence_length
+
+for i in range(num_sequences):
+    sequence = new_data[i * sequence_length: (i + 1) * sequence_length]
+    is_falling = predict_falling(sequence, model)
+    print(f"Sequence {i+1}: {'Falling' if is_falling > 0.5 else 'Not Falling'}")
 
 '''
 # Train the model
