@@ -3,8 +3,8 @@ import tensorflow_datasets as tfds
 import numpy as np
 
 # Load data from text files
-default_data = np.loadtxt('c-default.txt')
-falling_data = np.loadtxt('c-falling.txt')
+default_data = np.loadtxt('./../default.txt')
+falling_data = np.loadtxt('./../falling.txt')
 
 # Prepare input and output data
 inputs = np.concatenate((default_data, falling_data))
