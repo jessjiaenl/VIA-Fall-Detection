@@ -51,21 +51,23 @@ model.fit(train_dataset, epochs=6, validation_data=test_dataset)
 
 model.save("c_model2_export")
 
-def normalize_sequence(sequence):
-    """Normalizes sequence values: `uint8` -> `float32`."""
-    return tf.cast(sequence, tf.float32) / 255.
+# Load the saved model
+model = tf.keras.models.load_model('c_model2_export')
+# Function to normalize a sequence
 
-#Test on a .txt file
+def normalize_sequence(sequence):
+    return sequence / 255.0  # Normalize to the range [0, 1]
+
 def predict_falling(sequence, model):
     """Predicts if a sequence is falling using the trained model."""
     normalized_sequence = normalize_sequence(sequence)
     predictions = model.predict(np.expand_dims(normalized_sequence, axis=0))
-    return predictions[0][0]
+    probability = tf.nn.sigmoid(predictions)[0][0]  # Apply sigmoid activation
+    return probability
 
-# Load the trained model
-model = tf.keras.models.load_model('c_model2_export')
+# Load the new text file
 new_data = []
-with open('./datasets/model2_data/falling.txt', 'r') as file:
+with open('./datasets/model2_data/default.txt', 'r') as file:
     for line in file:
         sequence = [float(value) for value in line.strip().split()]
         new_data.extend(sequence)
@@ -78,9 +80,10 @@ num_sequences = len(new_data) // sequence_length
 
 for i in range(num_sequences):
     sequence = new_data[i * sequence_length: (i + 1) * sequence_length]
-    is_falling = predict_falling(sequence, model)
-    print(f"Sequence {i+1}: {'Falling' if is_falling > 0.5 else 'Not Falling'}")
-
+    print(sequence)
+    probability = predict_falling(sequence, model)
+    is_falling = probability > 0.5  # Apply threshold for classification
+    print(f"Sequence {i+1}: {'Falling' if is_falling else 'Not Falling'}")
 '''
 # Train the model
 model.fit(dataset, epochs=6)
