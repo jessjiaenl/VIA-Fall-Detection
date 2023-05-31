@@ -67,7 +67,7 @@ def predict_falling(sequence, model):
 
 # Load the new text file
 new_data = []
-with open('./datasets/model2_data/default.txt', 'r') as file:
+with open('./datasets/model2_data/falling.txt', 'r') as file:
     for line in file:
         sequence = [float(value) for value in line.strip().split()]
         new_data.extend(sequence)
@@ -80,8 +80,8 @@ num_sequences = len(new_data) // sequence_length
 
 for i in range(num_sequences):
     sequence = new_data[i * sequence_length: (i + 1) * sequence_length]
-    print(sequence)
     probability = predict_falling(sequence, model)
+    print(probability)
     is_falling = probability > 0.5  # Apply threshold for classification
     print(f"Sequence {i+1}: {'Falling' if is_falling else 'Not Falling'}")
 '''
