@@ -1,0 +1,1 @@
+/usr/bin/aarch64-linux-gnu-g++ -rdynamic CMakeFiles/runtime.dir/api/runtime/runtime.cpp.o -o runtime   -L/home/sylvia/VIA-Fall-Detection/compiler_and_runtime/lib/aarch64-poky-linux  -Wl,-rpath,/home/sylvia/VIA-Fall-Detection/compiler_and_runtime/lib/aarch64-poky-linux -ldl 
