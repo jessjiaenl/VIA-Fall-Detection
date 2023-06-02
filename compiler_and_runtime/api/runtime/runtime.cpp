@@ -138,9 +138,9 @@ int main(int argc, char * argv[]) {
     // Setup the environment options for the Neuron Runtime
     EnvOptions envOptions = {
         .deviceKind = kEnvOptHardware,
+        .MDLACoreOption = 1,  // Force single MDLA
         .suppressInputConversion = false,  // Please refer to the explanation above
         .suppressOutputConversion = false,  // Please refer to the explanation above
-        .MDLACoreOption = 1,  // Force single MDLA
     };
 
     // Setup the QoS options for the Neuron Runtime
