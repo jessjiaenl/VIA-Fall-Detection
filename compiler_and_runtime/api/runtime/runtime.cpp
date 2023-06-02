@@ -129,9 +129,9 @@ int main(int argc, char * argv[]) {
     file.close();
 
     // Open the share library
-    handle = dlopen("lib/libneuron_runtime.so", RTLD_LAZY);
+    handle = dlopen("/usr/lib/libneuron_runtime.so", RTLD_LAZY);
     if (handle == nullptr) {
-        std::cerr << "Failed to open lib/libneuron_runtime.so." << std::endl;
+        std::cerr << "Failed to open /usr/lib/libneuron_runtime.so." << std::endl;
         exit(1);
     }
 
