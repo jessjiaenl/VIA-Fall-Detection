@@ -22,13 +22,24 @@ import cv2
 import sys
 
 class FallDet:
-    interpreter = tf.lite.Interpreter(model_path="model.tflite")
+    interpreter = None
+    output_index = None
+    input_index = None
+
     moving_prob = []
     frame = None
     frame_rgb = None
+
     threshold = 0.88
 
     def __init__(self):
+        # initialize tensor for model1
+        self.interpreter = tf.lite.Interpreter(model_path="model.tflite")
+        self.interpreter.allocate_tensors()
+        output = self.interpreter.get_output_details()
+        input = self.interpreter.get_input_details()
+        self.output_index = output[0]['index']
+        self.input_index = input[0]['index']
         pass
     
     def updateFrame(self, frame): # call this everytime we get a frame
@@ -37,16 +48,10 @@ class FallDet:
         frame_rgb = np.expand_dims(frame_rgb, axis=0) # match shape to model
     
     def predictFrame(self): # call this after updateFrame
-        self.interpreter.allocate_tensors()
-        output = self.interpreter.get_output_details()
-        input = self.interpreter.get_input_details()
-        output_index = output[0]['index']
-        input_index = input[0]['index']
-
-        self.interpreter.set_tensor(input_index, self.frame_rgb)
+        self.interpreter.set_tensor(self.input_index, self.frame_rgb)
         self.interpreter.invoke()
 
-        output_data = self.interpreter.get_tensor(output_index)
+        output_data = self.interpreter.get_tensor(self.output_index)
         output_data = output_data[0]
 
         output_probs = tf.nn.softmax(output_data.astype(float))
