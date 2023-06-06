@@ -21,19 +21,72 @@ import matplotlib.pyplot as plt
 import cv2
 import sys
 
+class FallDet:
+    interpreter = tf.lite.Interpreter(model_path="model.tflite")
+    moving_prob = []
+    frame = None
+    frame_rgb = None
+    threshold = 0.88
+
+    def __init__(self, frame):
+        self.updateFrame(frame)
+    
+    def updateFrame(self, frame):
+        self.frame = frame
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_rgb = np.expand_dims(frame_rgb, axis=0) # match shape to model
+    
+    def predictFrame(self, frame):
+        self.interpreter.allocate_tensors()
+        output = self.interpreter.get_output_details()
+        input = self.interpreter.get_input_details()
+        output_index = output[0]['index']
+        input_index = input[0]['index']
+
+        self.interpreter.set_tensor(input_index, self.frame_rgb)
+        self.interpreter.invoke()
+
+        output_data = self.interpreter.get_tensor(output_index)
+        output_data = output_data[0]
+
+        output_probs = tf.nn.softmax(output_data.astype(float))
+        predicted_index = np.argmax(output_data)
+        class_labels = ["Moving", "Still"]
+        predicted_class = class_labels[predicted_index]
+
+        prob = np.around(max(output_probs.numpy()), decimals = 2)
+        if predicted_class == "Still": self.moving_prob.append(1-prob)
+        else: self.moving_prob.append(prob)        
+
+        result = 0 # default = not falling
+        if len(self.moving_prob) == 16:
+            result = self.predictVid()
+            self.moving_prob = self.moving_prob[1:]
+        
+        return result
+    
+    def predictVid(self):
+        model2 = tf.keras.models.load_model("model2")
+        vid_preds = model2.predict(self.moving_prob)
+        return vid_preds.reshape((1, len(vid_preds))) > self.threshold
+
+
+
+'''
 frame_classifications = []
 moving_prob = []
 arguments = sys.argv
 frame = arguments[0]
 frame_classifications.append(frame)
 
-''' Formulate Input Data (frame_rgb) '''
+
+### Formulate input data
 # Convert the frame to RGB format
 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 # Make frame input data and ensure its type matches the model
 frame_rgb = np.expand_dims(frame_rgb, axis=0)
 
-''' Classify the Frame '''
+### Classify the frame
 interpreter = tf.lite.Interpreter(model_path="model.tflite")
 interpreter.allocate_tensors()
 
@@ -76,6 +129,7 @@ if predicted_class == "Still":
 else:
     moving_prob.append(prob)
 
+
 if len(moving_prob) == 16:
     # Model 2 dataset preparation
     moving_probs_trimmed = moving_prob[:-(len(moving_prob)%16)]
@@ -88,4 +142,4 @@ if len(moving_prob) == 16:
     bools = vid_preds.reshape((1, len(vid_preds))) > threshold
     print(bools)
     print(vid_preds.reshape((1, len(vid_preds))))
-
+'''
