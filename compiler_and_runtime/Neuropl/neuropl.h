@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <vector>
 #include <opencv2/opencv.hpp>
-//using namespace cv;
-//#include "/usr/include/opencv4/opencv2/opencv.hpp"
 
 template <typename T>
 class Neuropl{
@@ -16,6 +14,8 @@ public:
     Neuropl(std::string& path); 
     //T predict(std::vector<uint8_t>& image);
     T predict(cv::Mat& image);
+    /* Functions for testing pruposes. Will remove later. */
+    void print_attributes();
 
 private:
     std::string model_path;
@@ -26,10 +26,5 @@ private:
     /* Should be called once per neuropl initialization. */
     void setup(); 
     void setModelPath(std::string path);
-    
-    //T predict(std::vector<uint8_t>& image);
-    //T predict(cv::Mat& image);
 
-    /* Functions for testing pruposes. */
-    void print_attributes();
 };

@@ -8,6 +8,7 @@ template <typename T>
 Neuropl<T>::Neuropl(std::string& path){ 
     std::cout << "constructor " << std::endl;
     model_path = path;
+    setup();
 }
 
 /* Function implementations. */
@@ -15,12 +16,14 @@ Neuropl<T>::Neuropl(std::string& path){
 /* This function should set up all the needed enviroments for the Neuron Runtime. */
 template <typename T>
 void Neuropl<T>::setup(){
-    /* Call all the NeuroRuntime functions just like how runtime.cpp does*/
+    std::cout << "setup " << std::endl;
+    /* Call all the NeuroRuntime functions just like how runtime.cpp does. */
 }
 
 /* These function is for testing purposes only. */
 template <typename T>
 void Neuropl<T>::print_attributes(void){
+    std::cout << "print_attributes " << std::endl;
     std::cout << "model_path: " + model_path << std::endl;
 
 }
@@ -29,7 +32,7 @@ void Neuropl<T>::print_attributes(void){
 template <typename T>
 T Neuropl<T>::predict(cv::Mat& image) {    
     //uint8_t* ptr = image.data;
-
+    std::cout << "predict " << std::endl;
     return T {};
 }
 
@@ -40,14 +43,16 @@ T Neuropl<T>::predict(cv::Mat& image) {
 //}
 
 int main(void){
-    std::cout << "Using 2 default arguments\n" << std::endl;
+    std::cout << "Using 2 default arguments" << std::endl;
     //neuropl *n = new neuropl("I scream :O");
-    //n->print_attributes();
     typedef std::vector<std::vector<uint8_t>> outfmt;
 
     std::string model_path {"model.dla"};
     
+    /* 2 ways to call a function in C++. */
     Neuropl<outfmt> model{model_path};
+    Neuropl<outfmt> m2 = Neuropl<outfmt>(model_path);
+    model.print_attributes();
     //std::vector<uint8_t> output {10};
 
     //std::vector<std::vector<uint8_t>> output = model.predict(image); 
