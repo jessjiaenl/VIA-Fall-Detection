@@ -1,22 +1,35 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
+#include "RuntimeAPI.h"
+#include <string>
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <opencv2/opencv.hpp>
+//using namespace cv;
+//#include "/usr/include/opencv4/opencv2/opencv.hpp"
 
-struct neuropl{
-    const char *model_path;
+template <typename T>
+class Neuropl{
+public:
+    /* The constructor function*/ 
+    Neuropl(std::string& path); 
+    //T predict(std::vector<uint8_t>& image);
+    T predict(cv::Mat& image);
 
-    neuropl(const char *);
-    void print_path();
+private:
+    std::string model_path;
+
+    void* runtime;
+    /* The constructor function*/ 
+
+    /* Should be called once per neuropl initialization. */
+    void setup(); 
+    void setModelPath(std::string path);
+    
+    //T predict(std::vector<uint8_t>& image);
+    //T predict(cv::Mat& image);
+
+    /* Functions for testing pruposes. */
+    void print_attributes();
 };
-
-//constructor
-
-neuropl::neuropl(const char *path){
-    model_path = path;
-}
-
-//function (for testing in main currently)
-
-void neuropl::print_path(void){
-    printf("path is = %s", model_path);
-}
