@@ -40,7 +40,6 @@ class FallDet:
         input = self.interpreter.get_input_details()
         self.output_index = output[0]['index']
         self.input_index = input[0]['index']
-        pass
     
     def updateFrame(self, frame): # call this everytime we get a frame
         self.frame = frame
