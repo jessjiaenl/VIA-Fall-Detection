@@ -28,15 +28,15 @@ class FallDet:
     frame_rgb = None
     threshold = 0.88
 
-    def __init__(self, frame):
-        self.updateFrame(frame)
+    def __init__(self):
+        pass
     
-    def updateFrame(self, frame):
+    def updateFrame(self, frame): # call this everytime we get a frame
         self.frame = frame
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame_rgb = np.expand_dims(frame_rgb, axis=0) # match shape to model
     
-    def predictFrame(self, frame):
+    def predictFrame(self): # call this after updateFrame
         self.interpreter.allocate_tensors()
         output = self.interpreter.get_output_details()
         input = self.interpreter.get_input_details()
@@ -65,7 +65,7 @@ class FallDet:
         
         return result
     
-    def predictVid(self):
+    def predictVid(self): #  main doesn't call this function
         model2 = tf.keras.models.load_model("model2")
         vid_preds = model2.predict(self.moving_prob)
         return vid_preds.reshape((1, len(vid_preds))) > self.threshold
