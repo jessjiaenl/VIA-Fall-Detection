@@ -5,23 +5,23 @@ import cv2
 def read_from_cam():
     cap = cv2.VideoCapture(0)
     ret, frame = cap.read()
-
+    # reshape frame then return frame
     return 0
 
 def predict(fd, frame):
     fd.updateFrame(frame)
-    fd.predictFrame()
+    return fd.predictFrame()
 
 def render(result):
-    #GUI here
+    # GUI here
+    print(result)
     return 1
 
-def predictNRenderVid(path):
+def predictNRenderVid(fd, path):
     cap = cv2.VideoCapture(path)
     ret, frame = cap.read()
     while ret:
-        predict(fd, frame)
-        result = predict(fd, pic)
+        result = predict(fd, frame)
         render(result)
 
         ret, frame = cap.read()
@@ -31,10 +31,10 @@ if __name__ == '__main__':
     fd = Fall_Detection.FallDet()
 
     # take argument or built in?
-    useVid, path = True, ""
+    useVid, path = True, "./datasets/model2_vids/resized_jess_pickup.MOV"
 
     if useVid:
-        predictNRenderVid(path)
+        predictNRenderVid(fd, path)
     else:
         quit = False
         while(not quit):
