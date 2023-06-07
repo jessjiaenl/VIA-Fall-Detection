@@ -1,2 +1,6 @@
 import hello_ext
-print(hello_ext.greet())
+import boostClass
+#print(hello_ext.greet())
+t = boostClass.Test("Hello")
+t.scream()
+print(t.myMax(12,15))
