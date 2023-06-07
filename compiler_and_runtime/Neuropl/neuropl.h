@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <vector>
 #include <opencv2/opencv.hpp>
+#include <boost/python.hpp>
 
 template <typename T>
 class Neuropl{
