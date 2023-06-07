@@ -22,6 +22,7 @@
 
 #include "RuntimeAPI.h"
 
+/* Struct for the command line options. */
 struct Settings {
     int loop_count = 1;
     std::string model_path;
@@ -30,8 +31,9 @@ struct Settings {
     int number_of_results = 1;
 };
 
+/* Returns a setting struct that is the processed options from the commandline input. */
 Settings process_options(int argc, char** argv) {
-    Settings s;
+    Settings s; /* Instantiate a Settings struct. */
     int c = 0;
     static struct option long_options[] = {{"count", required_argument, nullptr, 'c'},
                                            {"image_bin", required_argument, nullptr, 'i'},
@@ -40,9 +42,11 @@ Settings process_options(int argc, char** argv) {
                                            {"num_results", required_argument, nullptr, 'r'},
                                            {nullptr, 0, nullptr, 0}};
 
+    /* Loops through input options until there are no more options. */
     while (1) {
         /* getopt_long stores the option index here. */
         int option_index = 0;
+        /* Function parses the command-line arguments. */
         c = getopt_long(argc, argv, "c:i:l:m:r:", long_options, &option_index);
 
         /* Detect the end of the options. */
@@ -50,18 +54,23 @@ Settings process_options(int argc, char** argv) {
 
         switch (c) {
             case 'c':
-                s.loop_count = strtol(optarg, nullptr, 10);
+            /* strtol converts the initial part of the string in str to a long int value according to the given base. */
+                s.loop_count = strtol(optarg, nullptr, 10); /* Set the setting's loop_count to input. Default value is 1. */
                 break;
             case 'i':
+            /* Sets the input image binary path. */
                 s.input_bin_path = optarg;
                 break;
             case 'l':
+            /* Sets the label text file's path. */
                 s.labels_path = optarg;
                 break;
             case 'm':
+            /* Path to a tflite quantized modl that is converted to .dla format. */
                 s.model_path = optarg;
                 break;
             case 'r':
+            /* Sets the number of results. Default is 1. */
                 s.number_of_results = strtol(optarg, nullptr, 10);
                 break;
             default:
@@ -73,7 +82,7 @@ Settings process_options(int argc, char** argv) {
 
 void * load_func(void * handle, const char * func_name) {
     /* Load the function specified by func_name, and exit if the loading is failed. */
-    void * func_ptr = dlsym(handle, func_name);
+    void * func_ptr = dlsym(handle, func_name); /* Find the run-time address in the shared object HANDLE refers to of the symbol called NAME.  */
 
     if (func_name == nullptr) {
         std::cerr << "Find " << func_name << " function failed." << std::endl;
@@ -86,6 +95,7 @@ int main(int argc, char * argv[]) {
     void * handle;
     void * runtime;
 
+    /* First call this function to processes the command line arguements. */
     Settings s = process_options(argc, argv);
     if (s.model_path.empty() || s.input_bin_path.empty() || s.labels_path.empty()) {
         std::cerr << "please set model_path and input_bin" << std::endl;
@@ -108,7 +118,9 @@ int main(int argc, char * argv[]) {
     typedef int (*NeuronRuntime_getProfiledQoSData)(void* runtime, ProfiledQoSData** profiledQoSData, uint8_t* execBoostValue);
     typedef int (*NeuronRuntime_inference)(void* runtime);
     typedef void (*NeuronRuntime_release)(void* runtime);
+    /* I assume the libraries above are from /usr/lib/libneuron_runtime.so. */
 
+    /* Read the image binary file and put it into a buffer. */
     // read input
     std::ifstream file(s.input_bin_path);
     if (!file) {
@@ -174,6 +186,10 @@ int main(int argc, char * argv[]) {
     LOAD_FUNCTIONS(NeuronRuntime_getProfiledQoSData, getProfiledQoSData);
 #undef LOAD_FUNCTIONS
 
+    /* To call a NeuronRuntime function:
+     *  int err = (*variable_name)(arguments based on typdef above);
+    */
+
     // Step 1. Create neuron runtime environment
     int err_code = (*rt_create)(&envOptions, &runtime);
     if (err_code != NEURONRUNTIME_NO_ERROR) {
@@ -182,6 +198,7 @@ int main(int argc, char * argv[]) {
     }
 
     // Step 2. Load the compiled network(*.dla) from file
+    /* c_str(): converts a string to an array of characters and terminates this array with a null character at the end*/
     err_code = (*loadNetworkFromFile)(runtime, s.model_path.c_str());
     if (err_code != NEURONRUNTIME_NO_ERROR) {
         std::cerr << "Failed to load network from file." << std::endl;
@@ -236,6 +253,7 @@ int main(int argc, char * argv[]) {
 
     // (Optional) Get profiled QoS Data
     // Neuron Rutime would allocate ProfiledQoSData instance when the input profiledQoSData is nullptr.
+    /* QoS stands for Quality of Service. We want these numbers. */
     ProfiledQoSData* profiledQoSData = nullptr;
     uint8_t executingBoostValue;
     err_code = (*getProfiledQoSData)(runtime, &profiledQoSData, &executingBoostValue);
@@ -276,6 +294,7 @@ int main(int argc, char * argv[]) {
     }
 
     // read labels
+    /* Creates an instance of the std::ifstream class named file_labels and opens a file specified by s.labels_path for input. */
     std::ifstream file_lables(s.labels_path);
     if (!file_lables) {
         std::cerr << "File " << s.labels_path.c_str() << " not found" << std::endl;
