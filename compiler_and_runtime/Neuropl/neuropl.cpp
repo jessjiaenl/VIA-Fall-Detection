@@ -1,11 +1,11 @@
 #include "neuropl.h"
-
+#include <boost/python.hpp>
 /* Constructor function. */
 /* Specify both loop_count and num_results. */
 
 /* Using default arguements for loop_count and num_results*/
 template <typename T>
-Neuropl<T>::Neuropl(std::string& path){ 
+Neuropl<T>::Neuropl(std::string path){ 
     std::cout << "constructor " << std::endl;
     model_path = path;
     setup();
@@ -25,6 +25,13 @@ template <typename T>
 void Neuropl<T>::print_attributes(void){
     std::cout << "print_attributes " << std::endl;
     std::cout << "model_path: " + model_path << std::endl;
+
+}
+
+template <typename T>
+void Neuropl<T>::setModelPath(std::string path){
+    std::cout << "SetModelPath " << std::endl;
+    model_path = path;
 
 }
 
@@ -68,4 +75,16 @@ int main(void){
         std::cout << std::endl;
     }
 
+}
+
+
+BOOST_PYTHON_MODULE(neuropl)
+{
+    using namespace boost::python;
+    
+    class_<Neuropl<uint8_t>>("Neuropl",  init<std::string>())
+         .def("predict", &Neuropl<uint8_t>::predict)
+         .def("print_attributes", &Neuropl<uint8_t>::print_attributes)
+         .def("setModelPath", &Neuropl<uint8_t>::setModelPath)
+        ;
 }
