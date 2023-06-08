@@ -1,0 +1,2 @@
+g++ -I /usr/include/opencv -I /usr/include neuropl.cpp -o  neuropl.so -shared -fPIC  $(pkg-config opencv4 python3 --cflags --libs) $(python3-config --ldflags --embed) -lboost_python38  -lboost_numpy38
+g++ -I /usr/include/opencv -I /usr/include neuropl.cpp -o  test $(pkg-config opencv4 python3 --cflags --libs) $(python3-config --ldflags --embed) -lboost_python38  -lboost_numpy38

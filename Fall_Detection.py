@@ -20,6 +20,9 @@ import matplotlib.pyplot as plt
 
 import cv2
 import sys
+sys.path.append("./compiler_and_runtime/Neuropl")
+
+import neuropl
 
 class FallDet:
     interpreter = None
@@ -51,9 +54,6 @@ class FallDet:
         self.frame_rgb = np.expand_dims(self.frame_rgb, axis=0) # match shape to model
     
     def predictFrame(self): # call this after updateFrame
-        # print()
-        # print(self.input_index)
-        # print()
         self.interpreter.set_tensor(self.input_index, self.frame_rgb)
         self.interpreter.invoke()
 
@@ -75,6 +75,11 @@ class FallDet:
             self.probs = self.probs[1:]
 
         return result
+
+        # model1 = neuropl.Neuropl("model1.dla") # model1 in: uint8 (1x224x224x3) out: uint8 (1x2)
+        # model2 = neuropl.Neuropl("model2.dla")
+        # prob = model1.predict(self.frame_rgb) # assume this outputs model1 out directly
+
     
     def predictVid(self): #  main doesn't call this function
         model2_in = np.array(self.probs).reshape((1, 16))

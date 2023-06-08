@@ -1,11 +1,15 @@
 #include "neuropl.h"
+#include <stdio.h>
+
+namespace bp = boost::python;
+namespace np = boost::python::numpy;
 
 /* Constructor function. */
 /* Specify both loop_count and num_results. */
 
 /* Using default arguements for loop_count and num_results*/
 template <typename T>
-Neuropl<T>::Neuropl(std::string& path){ 
+Neuropl<T>::Neuropl(std::string path){ 
     std::cout << "constructor " << std::endl;
     model_path = path;
     setup();
@@ -17,6 +21,8 @@ Neuropl<T>::Neuropl(std::string& path){
 template <typename T>
 void Neuropl<T>::setup(){
     std::cout << "setup " << std::endl;
+    Py_Initialize();
+    np::initialize();
     /* Call all the NeuroRuntime functions just like how runtime.cpp does. */
 }
 
@@ -28,13 +34,29 @@ void Neuropl<T>::print_attributes(void){
 
 }
 
+template <typename T>
+void Neuropl<T>::setModelPath(std::string path){
+    std::cout << "SetModelPath " << std::endl;
+    model_path = path;
+
+}
+
 //T predict(uint8_t* image) {
 template <typename T>
-T Neuropl<T>::predict(cv::Mat& image) {    
+T Neuropl<T>::predict(np::ndarray image) {    
     //uint8_t* ptr = image.data;
     std::cout << "predict " << std::endl;
     return T {};
 }
+
+
+/* For C++ */
+// template <typename T>
+// T Neuropl<T>::predict(cv::Mat& image) {    
+//     //uint8_t* ptr = image.data;
+//     std::cout << "predict " << std::endl;
+//     return T {};
+// }
 
 //template <typename T>
 //T Neuropl<T>::predict(std::vector& image) {    
@@ -43,6 +65,8 @@ T Neuropl<T>::predict(cv::Mat& image) {
 //}
 
 int main(void){
+    // Py_Initialize();
+    // np::initialize();
     std::cout << "Using 2 default arguments" << std::endl;
     //neuropl *n = new neuropl("I scream :O");
     typedef std::vector<std::vector<uint8_t>> outfmt;
@@ -54,18 +78,35 @@ int main(void){
     Neuropl<outfmt> m2 = Neuropl<outfmt>(model_path);
     model.print_attributes();
     //std::vector<uint8_t> output {10};
-
+    const int rows = 224;
+    const int cols = 224;
+    // Create a NumPy shape tuple
+    bp::tuple shape = bp::make_tuple(rows, cols);
+    const np::dtype dtype = np::dtype::get_builtin<uint8_t>();
+    np::ndarray img = np::zeros(shape, dtype);
     //std::vector<std::vector<uint8_t>> output = model.predict(image); 
     //output.size;
-    cv::Mat image {};
+    //cv::Mat image {};
 
-    outfmt output = model.predict(image);
+    outfmt output = model.predict(img);
 
-    for (auto v : output) {
-        for (auto vv : v) {
-            std::cout << vv << " ";
-        }
-        std::cout << std::endl;
-    }
+    // for (auto v : output) {
+    //     for (auto vv : v) {
+    //         std::cout << vv << " ";
+    //     }
+    //     std::cout << std::endl;
+    // }
 
+}
+
+
+BOOST_PYTHON_MODULE(neuropl)
+{
+    using namespace boost::python;
+    
+    class_<Neuropl<uint8_t>>("Neuropl",  init<std::string>())
+         .def("predict", &Neuropl<uint8_t>::predict)
+         .def("print_attributes", &Neuropl<uint8_t>::print_attributes)
+         .def("setModelPath", &Neuropl<uint8_t>::setModelPath)
+        ;
 }
