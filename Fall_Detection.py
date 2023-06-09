@@ -47,8 +47,10 @@ class FallDet:
     
     def predictFrame(self, frame):
         # make frame match model 1 input shape
-        frame = cv2.resize(frame, (self.input_shape[1], self.input_shape[2]), interpolation=cv2.INTER_AREA) # resize frame to 224x224
+        # frame = cv2.resize(frame, (self.input_shape[1], self.input_shape[2]), interpolation=cv2.INTER_AREA) # resize frame to 224x224
+        # print(frame.shape)
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_rgb = cv2.resize(frame_rgb, (self.input_shape[1], self.input_shape[2]), interpolation=cv2.INTER_AREA) # resize frame to 224x224
         frame_rgb = np.expand_dims(frame_rgb, axis=0) # [224x224x3] -> [1x224x224x3]
 
         # predict
