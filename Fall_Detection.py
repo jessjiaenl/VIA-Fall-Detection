@@ -20,6 +20,8 @@ class FallDet:
     model1 = None
     model2 = None
 
+    input_shape = [1,224,224,3] # hard coded for fall detection
+
     probs = []
     frame = None
     frame_rgb = None
@@ -45,9 +47,9 @@ class FallDet:
     
     def predictFrame(self, frame):
         # make frame match model 1 input shape
-        # cv2.resize frame to 224x224
+        frame = cv2.resize(frame, (self.input_shape[1], self.input_shape[2]), interpolation=cv2.INTER_AREA) # resize frame to 224x224
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        frame_rgb = np.expand_dims(frame_rgb, axis=0) # match shape to model
+        frame_rgb = np.expand_dims(frame_rgb, axis=0) # [224x224x3] -> [1x224x224x3]
 
         # predict
         self.interpreter.set_tensor(self.input_index, frame_rgb)
