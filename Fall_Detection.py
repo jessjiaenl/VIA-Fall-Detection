@@ -1,27 +1,15 @@
-import os
-
 import numpy as np
 
 import tensorflow as tf
 assert tf.__version__.startswith('2')
-import tensorflow_datasets as tfds
-
-from tflite_model_maker import model_spec
-from tflite_model_maker import image_classifier
-from tflite_model_maker.config import ExportFormat
-from tflite_model_maker.config import QuantizationConfig
-from tflite_model_maker.image_classifier import DataLoader
 
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras import layers
-import datetime
-
-import matplotlib.pyplot as plt
 
 import cv2
+
 import sys
 sys.path.append("./compiler_and_runtime/Neuropl")
-
 import neuropl
 
 class FallDet:
@@ -57,6 +45,7 @@ class FallDet:
     
     def predictFrame(self, frame):
         # make frame match model 1 input shape
+        # cv2.resize frame to 224x224
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame_rgb = np.expand_dims(frame_rgb, axis=0) # match shape to model
 
@@ -68,7 +57,7 @@ class FallDet:
         output_data = output_data[0]
         '''
         # using neuropl
-        output_data = self.model1.predict(self.frame_rgb) # assume this outputs [movingprob, stillprob]
+        output_data = self.model1.predict(frame_rgb) # assume this outputs [movingprob, stillprob]
         '''
 
         # below remains the same regardless of neuropl API usage
