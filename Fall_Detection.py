@@ -41,7 +41,7 @@ class FallDet:
     def __init__(self):
         
         # initialize tensor for model1
-        self.interpreter = tf.lite.Interpreter(model_path="model.tflite")
+        self.interpreter = tf.lite.Interpreter(model_path="./tflite_models/model.tflite")
         self.interpreter.allocate_tensors()
         output = self.interpreter.get_output_details()
         input = self.interpreter.get_input_details()
@@ -55,12 +55,13 @@ class FallDet:
         self.model2 = neuropl.Neuropl("model2.dla") # model2 in: uint8 (1x16) out: uint8 (1x1)
         '''
     
-    def updateFrame(self, frame): # call this everytime we get a frame
+    def predictFrame(self, frame):
+        # update frame
         self.frame = frame
         self.frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         self.frame_rgb = np.expand_dims(self.frame_rgb, axis=0) # match shape to model
-    
-    def predictFrame(self): # call this after updateFrame
+
+        # predict
         self.interpreter.set_tensor(self.input_index, self.frame_rgb)
         self.interpreter.invoke()
 

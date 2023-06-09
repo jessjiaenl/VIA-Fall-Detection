@@ -1,4 +1,4 @@
-import subprocess
+import sys
 import Fall_Detection
 import cv2
 
@@ -9,8 +9,7 @@ def read_from_cam():
     return 0
 
 def predict(fd, frame):
-    fd.updateFrame(frame)
-    return fd.predictFrame()
+    return fd.predictFrame(frame)
 
 def render(result):
     # GUI here
@@ -30,7 +29,7 @@ def predictNRenderVid(fd, path):
 if __name__ == '__main__':
     fd = Fall_Detection.FallDet()
 
-    # take argument or built in?
+    # useVid, path = sys.argv
     useVid, path = True, "./datasets/model2_vids/resized_jess_pickup.MOV"
 
     if useVid:
