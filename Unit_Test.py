@@ -8,7 +8,7 @@ blank_image = np.zeros((224,224), np.uint8)
 
 class SingleModel:
   model = None
-  input_type = int
+  input_type = np.uint8
   output_type = int
   input_shape = [1,224,224,3]
 
@@ -19,10 +19,11 @@ class SingleModel:
   
   def predictFrame(self, frame):
     # match model input shape
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    frame_rgb = np.expand_dims(self.frame_rgb, axis=0)
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # BGR to RGB
+    frame_rgb = cv2.resize(frame_rgb, (self.input_shape[1], self.input_shape[2]), interpolation=cv2.INTER_AREA) # resize image dim
+    frame_rgb = np.expand_dims(frame_rgb, axis=0) # resize to match tensor size
 
     # match model input type
-    input = frame_rgb
+    input = frame_rgb.astype(self.input_type)
 
     return self.model.predict(input) # assume this outputs [movingprob, stillprob]

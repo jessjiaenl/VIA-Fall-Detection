@@ -27,14 +27,17 @@ def predictNRenderVid(model, vid_path):
 
 
 if __name__ == '__main__':
-    model = Fall_Detection.FallDet()
-
     # modelidx, model_path, useVid, vid_path = sys.argv
     modelidx, model_path, useVid, vid_path = 0, "", True, "./datasets/model1_vids/original/jess_IMG_0480.MOV"
+    model = Fall_Detection.FallDet()
     if modelidx != 0: model = Unit_Test.SingleModel(model_path)
     '''
-    modelidx {0 : fall detection, 1 : open pose, 2 : object detection}
+    modelidx is {0 : fall detection, 1 : open pose, 2 : object detection}
+    some test vid paths:
+    "./datasets/model1_vids/original/jess_IMG_0480.MOV"
+    "./datasets/model1_vids/resized_IMG_0480.MOV"
     '''
+
     if useVid:
         predictNRenderVid(model, vid_path)
     else:
