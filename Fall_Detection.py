@@ -1,27 +1,15 @@
-import os
-
 import numpy as np
 
 import tensorflow as tf
 assert tf.__version__.startswith('2')
-import tensorflow_datasets as tfds
-
-from tflite_model_maker import model_spec
-from tflite_model_maker import image_classifier
-from tflite_model_maker.config import ExportFormat
-from tflite_model_maker.config import QuantizationConfig
-from tflite_model_maker.image_classifier import DataLoader
 
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras import layers
-import datetime
-
-import matplotlib.pyplot as plt
 
 import cv2
+
 import sys
 sys.path.append("./compiler_and_runtime/Neuropl")
-
 import neuropl
 
 class FallDet:
@@ -32,6 +20,9 @@ class FallDet:
     model1 = None
     model2 = None
 
+    input_shape = [1,224,224,3] # hard coded for fall detection
+    input_type = np.uint8 # hard coded for fall detection
+
     probs = []
     frame = None
     frame_rgb = None
@@ -41,7 +32,7 @@ class FallDet:
     def __init__(self):
         
         # initialize tensor for model1
-        self.interpreter = tf.lite.Interpreter(model_path="model.tflite")
+        self.interpreter = tf.lite.Interpreter(model_path="./tflite_models/model.tflite")
         self.interpreter.allocate_tensors()
         output = self.interpreter.get_output_details()
         input = self.interpreter.get_input_details()
@@ -55,20 +46,23 @@ class FallDet:
         self.model2 = neuropl.Neuropl("model2.dla") # model2 in: uint8 (1x16) out: uint8 (1x1)
         '''
     
-    def updateFrame(self, frame): # call this everytime we get a frame
-        self.frame = frame
-        self.frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        self.frame_rgb = np.expand_dims(self.frame_rgb, axis=0) # match shape to model
-    
-    def predictFrame(self): # call this after updateFrame
-        self.interpreter.set_tensor(self.input_index, self.frame_rgb)
+    def predictFrame(self, frame):
+        # match model input shape
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # BGR to RGB
+        frame_rgb = cv2.resize(frame_rgb, (self.input_shape[1], self.input_shape[2]), interpolation=cv2.INTER_AREA) # resize frame to 224x224
+        frame_rgb = np.expand_dims(frame_rgb, axis=0) # resize to match tensor size [224x224x3] -> [1x224x224x3]
+        # match model input type
+        # input = frame_rgb.astype(self.input_type)
+
+        # predict
+        self.interpreter.set_tensor(self.input_index, frame_rgb)
         self.interpreter.invoke()
 
         output_data = self.interpreter.get_tensor(self.output_index)
         output_data = output_data[0]
         '''
         # using neuropl
-        output_data = self.model1.predict(self.frame_rgb) # assume this outputs [movingprob, stillprob]
+        output_data = self.model1.predict(frame_rgb) # assume this outputs [movingprob, stillprob]
         '''
 
         # below remains the same regardless of neuropl API usage

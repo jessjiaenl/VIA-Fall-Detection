@@ -1,5 +1,6 @@
-import subprocess
+import sys
 import Fall_Detection
+import Unit_Test
 import cv2
 
 def read_from_cam():
@@ -8,38 +9,42 @@ def read_from_cam():
     # reshape frame then return frame
     return 0
 
-def predict(fd, frame):
-    fd.updateFrame(frame)
-    return fd.predictFrame()
+def predict(model, frame):
+    return model.predictFrame(frame)
 
-def render(result):
+def render(result, modelidx):
     # GUI here
-    print(result)
+    print(result, modelidx)
     return 1
 
-def predictNRenderVid(fd, path):
-    cap = cv2.VideoCapture(path)
+def predictNRenderVid(model, vid_path):
+    cap = cv2.VideoCapture(vid_path)
     ret, frame = cap.read()
     while ret:
-        result = predict(fd, frame)
-        render(result)
-
+        result = predict(model, frame)
+        render(result, modelidx)
         ret, frame = cap.read()
 
 
 if __name__ == '__main__':
-    fd = Fall_Detection.FallDet()
-
-    # take argument or built in?
-    useVid, path = True, "./datasets/model2_vids/resized_jess_pickup.MOV"
+    # modelidx, model_path, useVid, vid_path = sys.argv
+    modelidx, model_path, useVid, vid_path = 0, "", True, "./datasets/model1_vids/original/jess_IMG_0480.MOV"
+    model = Fall_Detection.FallDet()
+    if modelidx != 0: model = Unit_Test.SingleModel(model_path)
+    '''
+    modelidx is {0 : fall detection, 1 : open pose, 2 : object detection}
+    some test vid paths:
+    "./datasets/model1_vids/original/jess_IMG_0480.MOV"
+    "./datasets/model1_vids/resized_IMG_0480.MOV"
+    '''
 
     if useVid:
-        predictNRenderVid(fd, path)
+        predictNRenderVid(model, vid_path)
     else:
         quit = False
         while(not quit):
             pic = read_from_cam()
-            result = predict(fd, pic)
+            result = predict(model, pic)
             render(result)
 
 
