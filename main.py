@@ -23,14 +23,13 @@ def predictNRenderVid(fd, path):
     while ret:
         result = predict(fd, frame)
         render(result)
-
         ret, frame = cap.read()
 
 
 if __name__ == '__main__':
     fd = Fall_Detection.FallDet()
 
-    # useVid, path = sys.argv
+    # useFallDet, useVid, path = sys.argv
     useVid, path = True, "./datasets/model2_vids/resized_jess_pickup.MOV"
 
     if useVid:
