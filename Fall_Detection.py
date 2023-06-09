@@ -56,13 +56,12 @@ class FallDet:
         '''
     
     def predictFrame(self, frame):
-        # update frame
-        self.frame = frame
-        self.frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        self.frame_rgb = np.expand_dims(self.frame_rgb, axis=0) # match shape to model
+        # make frame match model 1 input shape
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_rgb = np.expand_dims(frame_rgb, axis=0) # match shape to model
 
         # predict
-        self.interpreter.set_tensor(self.input_index, self.frame_rgb)
+        self.interpreter.set_tensor(self.input_index, frame_rgb)
         self.interpreter.invoke()
 
         output_data = self.interpreter.get_tensor(self.output_index)
