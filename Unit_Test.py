@@ -6,7 +6,7 @@ import numpy as np
 
 blank_image = np.zeros((224,224), np.uint8)
 
-class model:
+class SingleModel:
   model = None
   input_type = int
   output_type = int
