@@ -7,7 +7,7 @@ import numpy as np
 class SingleModel:
   model = None
   input_type = np.uint8
-  output_type = int
+  output_type = np.uint8
   input_shape = [1,224,224,3]
 
   def __init__(self, model_path):
