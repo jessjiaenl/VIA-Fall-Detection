@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from screeninfo import get_monitors
+#from screeninfo import get_monitors
 
 class GUI:
     
