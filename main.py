@@ -34,7 +34,7 @@ def predictNRenderVid(model, vid_path):
 if __name__ == '__main__':
     # modelidx, model_path, useVid, vid_path = sys.argv
     # UI = GUI.GUI()
-    modelidx, model_path, useVid, vid_path = 0, "", True, "./datasets/model1_vids/original/jess_IMG_0480.MOV"
+    modelidx, model_path, useVid, vid_path = 0, "", True, "jess_IMG_0480.MOV"
     model = Fall_Detection.FallDet()
     if modelidx != 0: model = Unit_Test.SingleModel(model_path)
     '''
