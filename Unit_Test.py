@@ -4,8 +4,6 @@ import neuropl
 import cv2
 import numpy as np
 
-blank_image = np.zeros((224,224), np.uint8)
-
 class SingleModel:
   model = None
   input_type = np.uint8

@@ -30,7 +30,7 @@ class FallDet:
     threshold = 0.88
 
     def __init__(self):
-        
+        '''
         # initialize tensor for model1
         self.interpreter = tf.lite.Interpreter(model_path="./tflite_models/model.tflite")
         self.interpreter.allocate_tensors()
@@ -44,7 +44,7 @@ class FallDet:
         # using neuropl API
         self.model1 = neuropl.Neuropl("model1.dla") # model1 in: uint8 (1x224x224x3) out: uint8 (1x2)
         self.model2 = neuropl.Neuropl("model2.dla") # model2 in: uint8 (1x16) out: uint8 (1x1)
-        '''
+        
     
     def predictFrame(self, frame):
         # match model input shape
@@ -52,8 +52,9 @@ class FallDet:
         frame_rgb = cv2.resize(frame_rgb, (self.input_shape[1], self.input_shape[2]), interpolation=cv2.INTER_AREA) # resize frame to 224x224
         frame_rgb = np.expand_dims(frame_rgb, axis=0) # resize to match tensor size [224x224x3] -> [1x224x224x3]
         # match model input type
-        # input = frame_rgb.astype(self.input_type)
+        frame_rgb = frame_rgb.astype(self.input_type)
 
+        '''
         # predict using interpreter
         self.interpreter.set_tensor(self.input_index, frame_rgb)
         self.interpreter.invoke()
@@ -63,7 +64,7 @@ class FallDet:
         '''
         # predict using neuropl
         output_data = self.model1.predict(frame_rgb) # assume this outputs [movingprob, stillprob]
-        '''
+        
 
         # below remains the same regardless of neuropl API usage
         output_probs = tf.nn.softmax(output_data.astype(float))
