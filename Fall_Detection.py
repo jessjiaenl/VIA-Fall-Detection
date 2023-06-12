@@ -21,6 +21,7 @@ class FallDet:
     model2 = None
 
     input_shape = [1,224,224,3] # hard coded for fall detection
+    input_type = np.uint8 # hard coded for fall detection
 
     probs = []
     frame = None
@@ -46,21 +47,21 @@ class FallDet:
         '''
     
     def predictFrame(self, frame):
-        # make frame match model 1 input shape
-        # frame = cv2.resize(frame, (self.input_shape[1], self.input_shape[2]), interpolation=cv2.INTER_AREA) # resize frame to 224x224
-        # print(frame.shape)
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # match model input shape
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # BGR to RGB
         frame_rgb = cv2.resize(frame_rgb, (self.input_shape[1], self.input_shape[2]), interpolation=cv2.INTER_AREA) # resize frame to 224x224
-        frame_rgb = np.expand_dims(frame_rgb, axis=0) # [224x224x3] -> [1x224x224x3]
+        frame_rgb = np.expand_dims(frame_rgb, axis=0) # resize to match tensor size [224x224x3] -> [1x224x224x3]
+        # match model input type
+        # input = frame_rgb.astype(self.input_type)
 
-        # predict
+        # predict using interpreter
         self.interpreter.set_tensor(self.input_index, frame_rgb)
         self.interpreter.invoke()
 
         output_data = self.interpreter.get_tensor(self.output_index)
         output_data = output_data[0]
         '''
-        # using neuropl
+        # predict using neuropl
         output_data = self.model1.predict(frame_rgb) # assume this outputs [movingprob, stillprob]
         '''
 
