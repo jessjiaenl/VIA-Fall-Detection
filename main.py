@@ -5,9 +5,9 @@ import cv2
 
 def read_from_cam():
     cap = cv2.VideoCapture(0)
-    ret, frame = cap.read()
-    # reshape frame then return frame
-    return 0
+    _, frame = cap.read()
+    # frame is reshaped in model not here
+    return frame
 
 def predict(model, frame):
     return model.predictFrame(frame)
