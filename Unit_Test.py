@@ -6,14 +6,14 @@ import numpy as np
 
 class SingleModel:
   model = None
-  input_type = np.uint8
-  output_type = np.uint8
+  input_type = np.uint8 # manually specified by client
+  output_type = np.uint8 # manually specified by client
   input_shape = [1,224,224,3]
 
   def __init__(self, model_path):
     self.model = neuropl.Neuropl(model_path) # .dla
-    self.input_type = self.model.get_intput_type()
-    self.output_type = self.model.get_output_type()
+    # self.input_type = self.model.get_intput_type()
+    # self.output_type = self.model.get_output_type()
   
   def predictFrame(self, frame):
     # match model input shape

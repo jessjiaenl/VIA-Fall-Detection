@@ -44,8 +44,8 @@ if __name__ == '__main__':
     "./datasets/model1_vids/original/jess_IMG_0480.MOV"
     "./datasets/model1_vids/resized_IMG_0480.MOV"
     model paths:
-    open pose: "openpose_mobilenetv0.75_quant_1x368x368x3.tflite"
-    obj det: "mobilenet_ssd_pascal_quant.tflite"
+    open pose: "openpose_mobilenetv0.75_quant_1x368x368x3.dla"
+    obj det: "mobilenet_ssd_pascal_quant.dla"
     '''
 
     if useVid:
