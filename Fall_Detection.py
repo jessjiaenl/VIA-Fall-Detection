@@ -54,14 +54,14 @@ class FallDet:
         # match model input type
         # input = frame_rgb.astype(self.input_type)
 
-        # predict
+        # predict using interpreter
         self.interpreter.set_tensor(self.input_index, frame_rgb)
         self.interpreter.invoke()
 
         output_data = self.interpreter.get_tensor(self.output_index)
         output_data = output_data[0]
         '''
-        # using neuropl
+        # predict using neuropl
         output_data = self.model1.predict(frame_rgb) # assume this outputs [movingprob, stillprob]
         '''
 
