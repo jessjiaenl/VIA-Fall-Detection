@@ -146,28 +146,94 @@ T Neuropl<T>::predict(np::ndarray image) {
         exit(3);
     }
     
+    /*commented single output code
     // (Optional) Check the required output buffer size
     err_code = (*getSingleOutputSize)(runtime, &required_size);
     if (err_code != NEURONRUNTIME_NO_ERROR) {
         std::cerr << "Failed to get single output size for network." << std::endl;
         exit(3);
     }
-    
+
+    std::cout << "The required size of the output buffer is " << required_size << std::endl;
+    */
     std::vector<std::vector<unsigned char>> ret;
-    //std::vector<std::vector<uint8_t>> outbuf;
+
+    //1st output
+    err_code = (*getOutputSize)(runtime, 0, &required_size);
+    if (err_code != NEURONRUNTIME_NO_ERROR) {
+        std::cerr << "Failed to get single output size for network." << std::endl;
+        exit(3);
+    }
+    
     ret.push_back(std::vector<unsigned char>(required_size));
     unsigned char* out_buf = ret[0].data();
 
-    std::cout << "The required size of the output buffer is " << required_size << std::endl;
-
-    // Step 4. Set the output buffer
-    //unsigned char * out_buf = new unsigned char[1001];
-    err_code = (*setSingleOutput)(runtime, static_cast<void *>(out_buf), 1001, attr);
+    err_code = (*setOutput)(runtime, 0, static_cast<void *>(out_buf), required_size, attr);
     if (err_code != NEURONRUNTIME_NO_ERROR) {
         std::cerr << "Failed to set single output for network." << std::endl;
         exit(3);
     }
 
+    //2nd output
+    err_code = (*getOutputSize)(runtime, 1, &required_size);
+    if (err_code != NEURONRUNTIME_NO_ERROR) {
+        std::cerr << "Failed to get single output size for network." << std::endl;
+        exit(3);
+    }
+    
+    //std::vector<std::vector<uint8_t>> outbuf;
+    ret.push_back(std::vector<unsigned char>(required_size));
+    unsigned char* out_buf1 = ret[1].data();
+
+    err_code = (*setOutput)(runtime, 1, static_cast<void *>(out_buf1), required_size, attr);
+    if (err_code != NEURONRUNTIME_NO_ERROR) {
+        std::cerr << "Failed to set single output for network." << std::endl;
+        exit(3);
+    }
+
+    //3rd output
+    err_code = (*getOutputSize)(runtime, 2, &required_size);
+    if (err_code != NEURONRUNTIME_NO_ERROR) {
+        std::cerr << "Failed to get single output size for network." << std::endl;
+        exit(3);
+    }
+    
+    //std::vector<std::vector<uint8_t>> outbuf;
+    ret.push_back(std::vector<unsigned char>(required_size));
+    unsigned char* out_buf2 = ret[2].data();
+
+    err_code = (*setOutput)(runtime, 2, static_cast<void *>(out_buf2), required_size, attr);
+    if (err_code != NEURONRUNTIME_NO_ERROR) {
+        std::cerr << "Failed to set single output for network." << std::endl;
+        exit(3);
+    }
+
+    //4th output
+    err_code = (*getOutputSize)(runtime, 3, &required_size);
+    if (err_code != NEURONRUNTIME_NO_ERROR) {
+        std::cerr << "Failed to get single output size for network." << std::endl;
+        exit(3);
+    }
+    
+    //std::vector<std::vector<uint8_t>> outbuf;
+    ret.push_back(std::vector<unsigned char>(required_size));
+    unsigned char* out_buf3 = ret[3].data();
+
+    err_code = (*setOutput)(runtime, 3, static_cast<void *>(out_buf3), required_size, attr);
+    if (err_code != NEURONRUNTIME_NO_ERROR) {
+        std::cerr << "Failed to set single output for network." << std::endl;
+        exit(3);
+    }
+
+    /*commented single output code
+    // Step 4. Set the output buffer
+    //unsigned char * out_buf = new unsigned char[1001];
+    err_code = (*setSingleOutput)(runtime, static_cast<void *>(out_buf), required_size, attr);
+    if (err_code != NEURONRUNTIME_NO_ERROR) {
+        std::cerr << "Failed to set single output for network." << std::endl;
+        exit(3);
+    }
+    */
     // (Optional) Set QoS Option
     err_code = (*setQoSOption)(runtime, &qosOptions);
     if (err_code != NEURONRUNTIME_NO_ERROR) {
@@ -210,12 +276,8 @@ T Neuropl<T>::predict(np::ndarray image) {
     // Step 6. Release the runtime resource
     (*release)(runtime);
 
-    //result.push_back(std::vector<T>{out_buf});
-    // result.push_back(std::vector<T>{out_buf1});
-    // result.push_back(std::vector<T>{out_buf2});
-    // result.push_back(std::vector<T>{out_buf3});
-   return ret;
-   //return T {};
+    return ret;
+    //return T {};
 }
 
 template <typename T>
@@ -230,30 +292,16 @@ void *  Neuropl<T>::load_func(void * handle, const char * func_name) {
     return func_ptr;
 }
 
-/* For C++ */
-// template <typename T>
-// T Neuropl<T>::predict(cv::Mat& image) {    
-//     //uint8_t* ptr = image.data;
-//     std::cout << "predict " << std::endl;
-//     return T {};
-// }
-
-//template <typename T>
-//T Neuropl<T>::predict(std::vector& image) {    
-    //uint8_t* ptr = image.data;
-//    return T {};
-//}
-
 int main(void){
-    // Py_Initialize();
-    // np::initialize();
     std::cout << "Using 2 default arguments" << std::endl;
     //neuropl *n = new neuropl("I scream :O");
-    typedef std::vector<std::vector<unsigned char>> outfmt;
+    
+    //typedef std::vector<std::vector<unsigned char>> outfmt;
+    using outfmt = typename std::vector<std::vector<unsigned char>>;
 
     std::string model_path {"model.dla"};
     
-    /* 2 ways to call a function in C++. */
+    //2 ways to call a function in C++.
     Neuropl<outfmt> model{model_path};
     Neuropl<outfmt> m2 = Neuropl<outfmt>(model_path);
     model.print_attributes();
@@ -275,17 +323,18 @@ int main(void){
     //     }
     //     std::cout << std::endl;
     // }
-
+    
 }
 
 
 BOOST_PYTHON_MODULE(neuropl)
 {
     using namespace boost::python;
-    
-    class_<Neuropl<uint8_t>>("Neuropl",  init<std::string>())
-         .def("predict", &Neuropl<uint8_t>::predict)
-         .def("print_attributes", &Neuropl<uint8_t>::print_attributes)
-         .def("setModelPath", &Neuropl<uint8_t>::setModelPath)
+    using outfmt = typename std::vector<std::vector<unsigned char>>;
+
+    class_<Neuropl<outfmt>>("Neuropl",  init<std::string>())
+         .def("predict", &Neuropl<outfmt>::predict)
+         .def("print_attributes", &Neuropl<outfmt>::print_attributes)
+         .def("setModelPath", &Neuropl<outfmt>::setModelPath)
         ;
 }
