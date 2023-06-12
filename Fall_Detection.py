@@ -1,10 +1,10 @@
 import numpy as np
 
-import tensorflow as tf
-assert tf.__version__.startswith('2')
+# import tensorflow as tf
+# assert tf.__version__.startswith('2')
 
-from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras import layers
+# from tensorflow.keras.callbacks import TensorBoard
+# from tensorflow.keras import layers
 
 import cv2
 
@@ -30,7 +30,7 @@ class FallDet:
     threshold = 0.88
 
     def __init__(self):
-        '''
+        
         # initialize tensor for model1
         self.interpreter = tf.lite.Interpreter(model_path="./tflite_models/model.tflite")
         self.interpreter.allocate_tensors()
@@ -44,7 +44,7 @@ class FallDet:
         # using neuropl API
         self.model1 = neuropl.Neuropl("model1.dla") # model1 in: uint8 (1x224x224x3) out: uint8 (1x2)
         self.model2 = neuropl.Neuropl("model2.dla") # model2 in: uint8 (1x16) out: uint8 (1x1)
-        
+        '''
     
     def predictFrame(self, frame):
         # match model input shape
@@ -54,7 +54,7 @@ class FallDet:
         # match model input type
         frame_rgb = frame_rgb.astype(self.input_type)
 
-        '''
+        
         # predict using interpreter
         self.interpreter.set_tensor(self.input_index, frame_rgb)
         self.interpreter.invoke()
@@ -64,15 +64,17 @@ class FallDet:
         '''
         # predict using neuropl
         output_data = self.model1.predict(frame_rgb) # assume this outputs [movingprob, stillprob]
-        
+        '''
 
         # below remains the same regardless of neuropl API usage
-        output_probs = tf.nn.softmax(output_data.astype(float))
+        # output_probs = tf.nn.softmax(output_data.astype(float)) # use tf
+        output_probs = np.exp(output_data.astype(float))/np.sum(np.exp(output_data.astype(float))) # without tf
         predicted_index = np.argmax(output_data)
         class_labels = ["Moving", "Still"]
         predicted_class = class_labels[predicted_index]
 
-        prob = np.around(max(output_probs.numpy()), decimals = 2)
+        # prob = np.around(max(output_probs.numpy()), decimals = 2) # use tf
+        prob = np.around(max(output_probs), decimals = 2) # without tf
         if predicted_class == "Still": self.probs += [1-prob]
         else: self.probs += [1-prob]        
 
