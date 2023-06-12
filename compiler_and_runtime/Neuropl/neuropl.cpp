@@ -131,8 +131,16 @@ T Neuropl<T>::predict(np::ndarray image) {
     }
     std::cout << "The required size of the input buffer is " << required_size << std::endl;
 
-    //uint8_t* byte_buffer = new uint8_t[image.get_data()];
+    /* Verify input size. Assuming img is 2 dimentional. */
     np::ndarray npArray = bp::extract<np::ndarray>(image);
+    int x = (int)(npArray.shape(0));
+    int y = (int)(npArray.shape(1));
+    int array_size = x*y;
+
+    if(array_size != required_size){
+        std::cerr << "Input dimension mismatch. " << std::endl;
+        exit(1);
+    }
 
     // Get the buffer pointer and size
     uint8_t* byte_buffer = reinterpret_cast<uint8_t*>(npArray.get_data());
@@ -295,7 +303,8 @@ void *  Neuropl<T>::load_func(void * handle, const char * func_name) {
 int main(void){
     std::cout << "Using 2 default arguments" << std::endl;
     //neuropl *n = new neuropl("I scream :O");
-    
+    // Py_Initialize();
+    // np::initialize();
     //typedef std::vector<std::vector<unsigned char>> outfmt;
     using outfmt = typename std::vector<std::vector<unsigned char>>;
 
@@ -312,17 +321,20 @@ int main(void){
     bp::tuple shape = bp::make_tuple(rows, cols);
     const np::dtype dtype = np::dtype::get_builtin<unsigned char>();
     np::ndarray img = np::zeros(shape, dtype);
-    //std::vector<std::vector<uint8_t>> output = model.predict(image); 
+    // int x = (int)(img.shape(0));
+    // int y = (int)(img.shape(1));
+    // printf("%d\n", x);
+    // printf("%d", y);
     //output.size;
 
     outfmt output = model.predict(img);
 
-    // for (auto v : output) {
-    //     for (auto vv : v) {
-    //         std::cout << vv << " ";
-    //     }
-    //     std::cout << std::endl;
-    // }
+    for (auto v : output) {
+        for (auto vv : v) {
+            std::cout << vv << " ";
+        }
+        std::cout << std::endl;
+    }
     
 }
 
