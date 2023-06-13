@@ -9,7 +9,7 @@ import numpy as np
 import cv2
 
 import sys
-sys.path.append("./compiler_and_runtime/Neuropl")
+sys.path.append("./Neuropl")
 import neuropl
 
 class FallDet:
@@ -20,7 +20,8 @@ class FallDet:
     model1 = None
     model2 = None
 
-    input_shape = [1,224,224,3] # hard coded for fall detection
+    model1_input_shape = [1,224,224,3] # hard coded for fall detection
+    model2_input_shape = [1,16] # hard coded for fall detection
     input_type = np.uint8 # hard coded for fall detection
 
     probs = []
@@ -30,7 +31,7 @@ class FallDet:
     threshold = 0.88
 
     def __init__(self):
-        
+        '''
         # initialize tensor for model1
         self.interpreter = tf.lite.Interpreter(model_path="./tflite_models/model.tflite")
         self.interpreter.allocate_tensors()
@@ -44,7 +45,7 @@ class FallDet:
         # using neuropl API
         self.model1 = neuropl.Neuropl("model1.dla") # model1 in: uint8 (1x224x224x3) out: uint8 (1x2)
         self.model2 = neuropl.Neuropl("model2.dla") # model2 in: uint8 (1x16) out: uint8 (1x1)
-        '''
+        
     
     def predictFrame(self, frame):
         # match model input shape
@@ -54,7 +55,7 @@ class FallDet:
         # match model input type
         frame_rgb = frame_rgb.astype(self.input_type)
 
-        
+        '''
         # predict using interpreter
         self.interpreter.set_tensor(self.input_index, frame_rgb)
         self.interpreter.invoke()
@@ -63,8 +64,8 @@ class FallDet:
         output_data = output_data[0]
         '''
         # predict using neuropl
-        output_data = self.model1.predict(frame_rgb) # assume this outputs [movingprob, stillprob]
-        '''
+        output_data = self.model1.predict(frame_rgb, len(self.model1_input_shape)) # assume this outputs [movingprob, stillprob]
+
 
         # below remains the same regardless of neuropl API usage
         # output_probs = tf.nn.softmax(output_data.astype(float)) # use tf
@@ -87,5 +88,5 @@ class FallDet:
     
     def predictVid(self): #  main doesn't call this function
         model2_in = np.array(self.probs).reshape((1, 16))
-        vid_preds = self.model2.predict(model2_in) # uint8 1x1
+        vid_preds = self.model2.predict(model2_in, len(self.model2_input_shape)) # uint8 1x1
         return (vid_preds.reshape((1, len(vid_preds))) > self.threshold)[0][0]
