@@ -23,7 +23,7 @@ public:
     /* The constructor function*/ 
     Neuropl(std::string path); 
     //T predict(std::vector<uint8_t>& image);
-    T predict(np::ndarray image);
+    T predict(np::ndarray image, int len);
     //T predict(cv::Mat& image)
     void setModelPath(std::string path);
     /* Functions for testing pruposes. Will remove later. */

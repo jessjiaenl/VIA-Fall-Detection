@@ -42,7 +42,7 @@ void Neuropl<T>::setModelPath(std::string path){
 
 //T predict(uint8_t* image) {
 template <typename T>
-T Neuropl<T>::predict(np::ndarray image) {    
+T Neuropl<T>::predict(np::ndarray image, int len) {    
     std::cout << "predict " << std::endl;
     //uint8_t* ptr = image.data;
     /* Call all the NeuroRuntime functions just like how runtime.cpp does. */
@@ -133,9 +133,12 @@ T Neuropl<T>::predict(np::ndarray image) {
 
     /* Verify input size. Assuming img is 2 dimentional. */
     np::ndarray npArray = bp::extract<np::ndarray>(image);
-    int x = (int)(npArray.shape(0));
-    int y = (int)(npArray.shape(1));
-    int array_size = x*y;
+    int array_size = 1;
+    for(int i = 0; i < len; i++){
+        array_size*= (int)(npArray.shape(i));
+    }
+    // int x = (int)(npArray.shape(0));
+    // int y = (int)(npArray.shape(1));
 
     if(array_size != required_size){
         std::cerr << "Input dimension mismatch. " << std::endl;
@@ -327,7 +330,7 @@ int main(void){
     // printf("%d", y);
     //output.size;
 
-    outfmt output = model.predict(img);
+    outfmt output = model.predict(img, 2);
 
     for (auto v : output) {
         for (auto vv : v) {
