@@ -9,7 +9,7 @@ import numpy as np
 import cv2
 
 import sys
-sys.path.append("./Neuropl")
+sys.path.append("./compiler_and_runtime/Neuropl")
 import neuropl
 
 class FallDet:
@@ -50,7 +50,7 @@ class FallDet:
     def predictFrame(self, frame):
         # match model input shape
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # BGR to RGB
-        frame_rgb = cv2.resize(frame_rgb, (self.input_shape[1], self.input_shape[2]), interpolation=cv2.INTER_AREA) # resize frame to 224x224
+        frame_rgb = cv2.resize(frame_rgb, (self.model1_input_shape[1], self.model1_input_shape[2]), interpolation=cv2.INTER_AREA) # resize frame to 224x224
         frame_rgb = np.expand_dims(frame_rgb, axis=0) # resize to match tensor size [224x224x3] -> [1x224x224x3]
         # match model input type
         frame_rgb = frame_rgb.astype(self.input_type)

@@ -1,5 +1,5 @@
 import sys
-sys.path.append("./Neuropl")
+sys.path.append("./compiler_and_runtime/Neuropl")
 import neuropl
 import cv2
 import numpy as np
