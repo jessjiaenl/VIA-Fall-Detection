@@ -21,7 +21,9 @@ class FallDet:
     model2 = None
 
     model1_input_shape = [1,224,224,3] # hard coded for fall detection
+    model1_output_shape = [1,2] # hard coded for fall detection
     model2_input_shape = [1,16] # hard coded for fall detection
+    model2_output_shape = [1,1]  # hard coded for fall detection
     input_type = np.uint8 # hard coded for fall detection
 
     probs = []
@@ -64,7 +66,7 @@ class FallDet:
         output_data = output_data[0]
         '''
         # predict using neuropl
-        output_data = self.model1.predict(frame_rgb, len(self.model1_input_shape)) # assume this outputs [movingprob, stillprob]
+        output_data = self.model1.predict(frame_rgb, len(self.model1_input_shape), len(self.model1_output_shape)) # assume this outputs [movingprob, stillprob]
 
 
         # below remains the same regardless of neuropl API usage
@@ -88,5 +90,5 @@ class FallDet:
     
     def predictVid(self): #  main doesn't call this function
         model2_in = np.array(self.probs).reshape((1, 16))
-        vid_preds = self.model2.predict(model2_in, len(self.model2_input_shape)) # uint8 1x1
+        vid_preds = self.model2.predict(model2_in, len(self.model2_input_shape), len(self.model2_output_shape)) # uint8 1x1
         return (vid_preds.reshape((1, len(vid_preds))) > self.threshold)[0][0]

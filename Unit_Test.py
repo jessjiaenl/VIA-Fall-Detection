@@ -9,6 +9,7 @@ class SingleModel:
   input_type = np.uint8 # manually specified by client
   output_type = np.uint8 # manually specified by client
   input_shape = [1,224,224,3] # manually specified by client
+  output_shape = [1,2] # manually specified by client
 
   def __init__(self, model_path):
     self.model = neuropl.Neuropl(model_path) # .dla
@@ -24,4 +25,4 @@ class SingleModel:
     # match model input type
     input = frame_rgb.astype(self.input_type)
 
-    return self.model.predict(input, len(self.input_shape)) # assume this outputs [movingprob, stillprob]
+    return self.model.predict(input, len(self.input_shape), len(self.output_shape)) # assume this outputs [movingprob, stillprob]
