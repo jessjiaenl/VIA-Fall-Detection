@@ -172,11 +172,14 @@ T Neuropl<T>::predict(np::ndarray image, int len) {
     //1st output
     err_code = (*getOutputSize)(runtime, 0, &required_size);
     if (err_code != NEURONRUNTIME_NO_ERROR) {
-        std::cerr << "Failed to get single output size for network." << std::endl;
+        std::cerr << "Failed to get single output size 1 for network." << std::endl;
         exit(3);
     }
-    
-    ret.push_back(std::vector<unsigned char>(required_size));
+    std::cout << "Output size 1 is " << required_size <<std::endl;
+    std::vector<unsigned char> vect;
+    vect.push_back(required_size);
+    ret.push_back(vect);
+    //ret.push_back(std::vector<unsigned char> arr(required_size));
     unsigned char* out_buf = ret[0].data();
 
     err_code = (*setOutput)(runtime, 0, static_cast<void *>(out_buf), required_size, attr);
@@ -185,56 +188,64 @@ T Neuropl<T>::predict(np::ndarray image, int len) {
         exit(3);
     }
 
-    //2nd output
-    err_code = (*getOutputSize)(runtime, 1, &required_size);
-    if (err_code != NEURONRUNTIME_NO_ERROR) {
-        std::cerr << "Failed to get single output size for network." << std::endl;
-        exit(3);
-    }
+    // //2nd output
+    // err_code = (*getOutputSize)(runtime, 1, &required_size);
+    // if (err_code != NEURONRUNTIME_NO_ERROR) {
+    //     std::cerr << "Failed to get single output size for network." << std::endl;
+    //     exit(3);
+    // }
+
+    // std::cout << "Output size 2 is " << required_size <<std::endl;
+    // std::vector<unsigned char> vect2;
+    // vect2.push_back(required_size);
+    // ret.push_back(vect2);
+    // //std::vector<std::vector<uint8_t>> outbuf;
+    // //ret.push_back(std::vector<unsigned char>(required_size));
+    // unsigned char* out_buf1 = ret[1].data();
+
+    // err_code = (*setOutput)(runtime, 1, static_cast<void *>(out_buf1), required_size, attr);
+    // if (err_code != NEURONRUNTIME_NO_ERROR) {
+    //     std::cerr << "Failed to set single output for network." << std::endl;
+    //     exit(3);
+    // }
+
+    // //3rd output
+    // err_code = (*getOutputSize)(runtime, 2, &required_size);
+    // if (err_code != NEURONRUNTIME_NO_ERROR) {
+    //     std::cerr << "Failed to get single output size for network." << std::endl;
+    //     exit(3);
+    // }
+
+    //     std::cout << "Output size 3 is "+ required_size <<std::endl;
     
-    //std::vector<std::vector<uint8_t>> outbuf;
-    ret.push_back(std::vector<unsigned char>(required_size));
-    unsigned char* out_buf1 = ret[1].data();
+    // //std::vector<std::vector<uint8_t>> outbuf;
+    // ret.push_back(std::vector<unsigned char>(required_size));
+    // unsigned char* out_buf2 = ret[2].data();
 
-    err_code = (*setOutput)(runtime, 1, static_cast<void *>(out_buf1), required_size, attr);
-    if (err_code != NEURONRUNTIME_NO_ERROR) {
-        std::cerr << "Failed to set single output for network." << std::endl;
-        exit(3);
-    }
+    // err_code = (*setOutput)(runtime, 2, static_cast<void *>(out_buf2), required_size, attr);
+    // if (err_code != NEURONRUNTIME_NO_ERROR) {
+    //     std::cerr << "Failed to set single output for network." << std::endl;
+    //     exit(3);
+    // }
 
-    //3rd output
-    err_code = (*getOutputSize)(runtime, 2, &required_size);
-    if (err_code != NEURONRUNTIME_NO_ERROR) {
-        std::cerr << "Failed to get single output size for network." << std::endl;
-        exit(3);
-    }
-    
-    //std::vector<std::vector<uint8_t>> outbuf;
-    ret.push_back(std::vector<unsigned char>(required_size));
-    unsigned char* out_buf2 = ret[2].data();
+    // //4th output
+    // err_code = (*getOutputSize)(runtime, 3, &required_size);
+    // if (err_code != NEURONRUNTIME_NO_ERROR) {
+    //     std::cerr << "Failed to get single output size for network." << std::endl;
+    //     exit(3);
+    // }
 
-    err_code = (*setOutput)(runtime, 2, static_cast<void *>(out_buf2), required_size, attr);
-    if (err_code != NEURONRUNTIME_NO_ERROR) {
-        std::cerr << "Failed to set single output for network." << std::endl;
-        exit(3);
-    }
+    //     std::cout << "Output size 4 is "+ required_size <<std::endl;
 
-    //4th output
-    err_code = (*getOutputSize)(runtime, 3, &required_size);
-    if (err_code != NEURONRUNTIME_NO_ERROR) {
-        std::cerr << "Failed to get single output size for network." << std::endl;
-        exit(3);
-    }
-    
-    //std::vector<std::vector<uint8_t>> outbuf;
-    ret.push_back(std::vector<unsigned char>(required_size));
-    unsigned char* out_buf3 = ret[3].data();
+    // //std::vector<std::vector<uint8_t>> outbuf;
+    // ret.push_back(std::vector<unsigned char>(required_size));
+    // unsigned char* out_buf3 = ret[3].data();
 
-    err_code = (*setOutput)(runtime, 3, static_cast<void *>(out_buf3), required_size, attr);
-    if (err_code != NEURONRUNTIME_NO_ERROR) {
-        std::cerr << "Failed to set single output for network." << std::endl;
-        exit(3);
-    }
+    // err_code = (*setOutput)(runtime, 3, static_cast<void *>(out_buf3), required_size, attr);
+    // if (err_code != NEURONRUNTIME_NO_ERROR) {
+    //     std::cerr << "Failed to set single output for network." << std::endl;
+    //     exit(3);
+    // }
 
     /*commented single output code
     // Step 4. Set the output buffer
@@ -311,11 +322,11 @@ int main(void){
     //typedef std::vector<std::vector<unsigned char>> outfmt;
     using outfmt = typename std::vector<std::vector<unsigned char>>;
 
-    std::string model_path {"model.dla"};
+    std::string model_path {"./../model1.dla"};
     
     //2 ways to call a function in C++.
     Neuropl<outfmt> model{model_path};
-    Neuropl<outfmt> m2 = Neuropl<outfmt>(model_path);
+    //Neuropl<outfmt> m2 = Neuropl<outfmt>(model_path);
     model.print_attributes();
     //std::vector<uint8_t> output {10};
     const int rows = 224;
