@@ -21,22 +21,52 @@ template <typename T>
 class Neuropl{
 public:
     /* The constructor function*/ 
-    Neuropl(std::string path); 
-    //T predict(std::vector<uint8_t>& image);
-    T predict(np::ndarray image, int len);
-    //T predict(cv::Mat& image)
+    Neuropl(std::string path, int inputLen, int outputLen); 
     void setModelPath(std::string path);
     /* Functions for testing pruposes. Will remove later. */
     void print_attributes();
 
-private:
+    np::ndarray predict(np::ndarray image, int inputLen);;
+    std::vector<std::vector<T>> predict(cv::Mat mat);
 
+private:
+    
     std::string model_path;
     size_t required_size;
     void* runtime;
     void * handle;
+
     /* Should be called once per neuropl initialization. */
-    void setup(); 
     void * load_func(void * handle, const char * func_name);
 
+    typedef int (*NeuronRuntime_create)(const EnvOptions* options, void** runtime);
+    typedef int (*NeuronRuntime_loadNetworkFromFile)(void* runtime, const char* pathToDlaFile);
+    typedef int (*NeuronRuntime_loadNetworkFromBuffer)(void* runtime, const void* buffer, size_t size);
+    typedef int (*NeuronRuntime_setInput)(void* runtime, uint64_t handle, const void* buffer, size_t length, BufferAttribute attr);
+    typedef int (*NeuronRuntime_setSingleInput)(void* runtime, const void* buffer, size_t length, BufferAttribute attr);
+    typedef int (*NeuronRuntime_setOutput)(void* runtime, uint64_t handle, void* buffer, size_t length, BufferAttribute attr);
+    typedef int (*NeuronRuntime_setSingleOutput)(void* runtime, void* buffer, size_t length, BufferAttribute attr);
+    typedef int (*NeuronRuntime_setQoSOption)(void* runtime, const QoSOptions* qosOption);
+    typedef int (*NeuronRuntime_getInputSize)(void* runtime, uint64_t handle, size_t* size);
+    typedef int (*NeuronRuntime_getSingleInputSize)(void* runtime, size_t* size);
+    typedef int (*NeuronRuntime_getOutputSize)(void* runtime, uint64_t handle, size_t* size);
+    typedef int (*NeuronRuntime_getSingleOutputSize)(void* runtime, size_t* size);
+    typedef int (*NeuronRuntime_getProfiledQoSData)(void* runtime, ProfiledQoSData** profiledQoSData, uint8_t* execBoostValue);
+    typedef int (*NeuronRuntime_inference)(void* runtime);
+    typedef void (*NeuronRuntime_release)(void* runtime);
+
+    NeuronRuntime_create rt_create;
+    NeuronRuntime_loadNetworkFromFile loadNetworkFromFile;
+    NeuronRuntime_setInput setInput;
+    NeuronRuntime_setSingleInput setSingleInput;
+    NeuronRuntime_setOutput setOutput;
+    NeuronRuntime_setSingleOutput setSingleOutput;
+    NeuronRuntime_setQoSOption setQoSOption;
+    NeuronRuntime_inference inference;
+    NeuronRuntime_release release;
+    NeuronRuntime_getInputSize getInputSize;
+    NeuronRuntime_getSingleInputSize getSingleInputSize;
+    NeuronRuntime_getOutputSize getOutputSize;
+    NeuronRuntime_getSingleOutputSize getSingleOutputSize;
+    NeuronRuntime_getProfiledQoSData getProfiledQoSData;
 };

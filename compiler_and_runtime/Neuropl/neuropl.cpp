@@ -4,26 +4,41 @@ namespace bp = boost::python;
 namespace np = boost::python::numpy;
 
 /* Constructor function. */
-/* Specify both loop_count and num_results. */
 
 /* Using default arguements for loop_count and num_results*/
 template <typename T>
-Neuropl<T>::Neuropl(std::string path){ 
+Neuropl<T>::Neuropl(std::string path, int inputLen, int outputLen){ 
     std::cout << "constructor " << std::endl;
     model_path = path;
-    setup();
+    Py_Initialize();
+    np::initialize();
+    // Open the share library
+    handle = dlopen("/usr/lib/libneuron_runtime.so", RTLD_LAZY);
+    if (handle == nullptr) {
+        std::cerr << "Failed to open /usr/lib/libneuron_runtime.so." << std::endl;
+        return;
+    }
+
+    #define LOAD_FUNCTIONS(FUNC_NAME, VARIABLE_NAME) \
+        VARIABLE_NAME = reinterpret_cast<FUNC_NAME>(load_func(handle, #FUNC_NAME));
+
+    LOAD_FUNCTIONS(NeuronRuntime_create, rt_create);
+    LOAD_FUNCTIONS(NeuronRuntime_loadNetworkFromFile, loadNetworkFromFile);
+    LOAD_FUNCTIONS(NeuronRuntime_setInput, setInput);
+    LOAD_FUNCTIONS(NeuronRuntime_setSingleInput, setSingleInput);
+    LOAD_FUNCTIONS(NeuronRuntime_setOutput, setOutput);
+    LOAD_FUNCTIONS(NeuronRuntime_setSingleOutput, setSingleOutput);
+    LOAD_FUNCTIONS(NeuronRuntime_setQoSOption, setQoSOption);
+    LOAD_FUNCTIONS(NeuronRuntime_inference, inference);
+    LOAD_FUNCTIONS(NeuronRuntime_release, release);
+    LOAD_FUNCTIONS(NeuronRuntime_getInputSize, getInputSize);
+    LOAD_FUNCTIONS(NeuronRuntime_getSingleInputSize, getSingleInputSize);
+    LOAD_FUNCTIONS(NeuronRuntime_getOutputSize, getOutputSize);
+    LOAD_FUNCTIONS(NeuronRuntime_getSingleOutputSize, getSingleOutputSize);
+    LOAD_FUNCTIONS(NeuronRuntime_getProfiledQoSData, getProfiledQoSData);
 }
 
 /* Function implementations. */
-
-/* This function should set up all the needed enviroments for the Neuron Runtime. */
-template <typename T>
-void Neuropl<T>::setup(){
-    std::cout << "setup " << std::endl;
-    Py_Initialize();
-    np::initialize();
-    /* I realized I cannot set up here or else all the functions will go out o scope in predict. */
-}
 
 /* These function is for testing purposes only. */
 template <typename T>
@@ -64,34 +79,14 @@ np::ndarray convertToNdarray(const std::vector<std::vector<unsigned char>>& data
 
 //T predict(uint8_t* image) {
 template <typename T>
-T Neuropl<T>::predict(np::ndarray image, int inputLen) {    
+np::ndarray Neuropl<T>::predict(np::ndarray image, int inputLen) {    
     std::cout << "predict " << std::endl;
     //uint8_t* ptr = image.data;
+    
     /* Call all the NeuroRuntime functions just like how runtime.cpp does. */
-     // typedef to the functions pointer signatures.
-    typedef int (*NeuronRuntime_create)(const EnvOptions* options, void** runtime);
-    typedef int (*NeuronRuntime_loadNetworkFromFile)(void* runtime, const char* pathToDlaFile);
-    typedef int (*NeuronRuntime_loadNetworkFromBuffer)(void* runtime, const void* buffer, size_t size);
-    typedef int (*NeuronRuntime_setInput)(void* runtime, uint64_t handle, const void* buffer, size_t length, BufferAttribute attr);
-    typedef int (*NeuronRuntime_setSingleInput)(void* runtime, const void* buffer, size_t length, BufferAttribute attr);
-    typedef int (*NeuronRuntime_setOutput)(void* runtime, uint64_t handle, void* buffer, size_t length, BufferAttribute attr);
-    typedef int (*NeuronRuntime_setSingleOutput)(void* runtime, void* buffer, size_t length, BufferAttribute attr);
-    typedef int (*NeuronRuntime_setQoSOption)(void* runtime, const QoSOptions* qosOption);
-    typedef int (*NeuronRuntime_getInputSize)(void* runtime, uint64_t handle, size_t* size);
-    typedef int (*NeuronRuntime_getSingleInputSize)(void* runtime, size_t* size);
-    typedef int (*NeuronRuntime_getOutputSize)(void* runtime, uint64_t handle, size_t* size);
-    typedef int (*NeuronRuntime_getSingleOutputSize)(void* runtime, size_t* size);
-    typedef int (*NeuronRuntime_getProfiledQoSData)(void* runtime, ProfiledQoSData** profiledQoSData, uint8_t* execBoostValue);
-    typedef int (*NeuronRuntime_inference)(void* runtime);
-    typedef void (*NeuronRuntime_release)(void* runtime);
-    /* Functions from  /usr/lib/libneuron_runtime.so. */
+    
 
-    // Open the share library
-    handle = dlopen("/usr/lib/libneuron_runtime.so", RTLD_LAZY);
-    if (handle == nullptr) {
-        std::cerr << "Failed to open /usr/lib/libneuron_runtime.so." << std::endl;
-        exit(1);
-    }
+
 
         // Setup the environment options for the Neuron Runtime
     EnvOptions envOptions = {
@@ -111,25 +106,6 @@ T Neuropl<T>::predict(np::ndarray image, int inputLen) {
         0,  // Abort time
         nullptr,  // Profiled QoS Data
     };
-    // Declare function pointer to each functions,
-    // and load the function address into function pointer
-    #define LOAD_FUNCTIONS(FUNC_NAME, VARIABLE_NAME) \
-            FUNC_NAME VARIABLE_NAME = reinterpret_cast<FUNC_NAME>(load_func(handle, #FUNC_NAME));
-        LOAD_FUNCTIONS(NeuronRuntime_create, rt_create)
-        LOAD_FUNCTIONS(NeuronRuntime_loadNetworkFromFile, loadNetworkFromFile)
-        LOAD_FUNCTIONS(NeuronRuntime_setInput, setInput)
-        LOAD_FUNCTIONS(NeuronRuntime_setSingleInput, setSingleInput)
-        LOAD_FUNCTIONS(NeuronRuntime_setOutput, setOutput)
-        LOAD_FUNCTIONS(NeuronRuntime_setSingleOutput, setSingleOutput)
-        LOAD_FUNCTIONS(NeuronRuntime_setQoSOption, setQoSOption);
-        LOAD_FUNCTIONS(NeuronRuntime_inference, inference)
-        LOAD_FUNCTIONS(NeuronRuntime_release, release)
-        LOAD_FUNCTIONS(NeuronRuntime_getInputSize, getInputSize)
-        LOAD_FUNCTIONS(NeuronRuntime_getSingleInputSize, getSingleInputSize)
-        LOAD_FUNCTIONS(NeuronRuntime_getOutputSize, getOutputSize)
-        LOAD_FUNCTIONS(NeuronRuntime_getSingleOutputSize, getSingleOutputSize)
-        LOAD_FUNCTIONS(NeuronRuntime_getProfiledQoSData, getProfiledQoSData);
-    #undef LOAD_FUNCTIONS
 
     // Step 1. Create neuron runtime environment
     int err_code = (*rt_create)(&envOptions, &runtime);
@@ -197,11 +173,6 @@ T Neuropl<T>::predict(np::ndarray image, int inputLen) {
         }
     }
 
-    // (Optional) Set QoS Option
-    err_code = (*setQoSOption)(runtime, &qosOptions);
-    if (err_code != NEURONRUNTIME_NO_ERROR) {
-        std::cerr << "Failed to set QoS option, using default setting instead" << std::endl;
-    }
     // Step 5. Do the inference with Neuron Runtime
     err_code = (*inference)(runtime);
     if (err_code != NEURONRUNTIME_NO_ERROR) {
@@ -239,9 +210,9 @@ T Neuropl<T>::predict(np::ndarray image, int inputLen) {
     (*release)(runtime);
 
     // Step 7. convert ret from vector vector to 2d numpy array
-    //np::ndarray retNumpy = convertToNdarray(ret);
+    np::ndarray retNumpy = convertToNdarray(ret);
     
-    return ret;
+    return retNumpy;
 }
 
 template <typename T>
@@ -262,12 +233,13 @@ int main(void){
     // Py_Initialize();
     // np::initialize();
     //typedef std::vector<std::vector<unsigned char>> outfmt;
-    using outfmt = typename std::vector<std::vector<unsigned char>>;
+    //using outfmt = typename std::vector<std::vector<unsigned char>>;
+    using outfmt = typename np::ndarray;
 
     std::string model_path {"./../model1.dla"};
     
     //2 ways to call a function in C++.
-    Neuropl<outfmt> model{model_path};
+    Neuropl<outfmt> model{model_path, 10, 2};
     //Neuropl<outfmt> m2 = Neuropl<outfmt>(model_path);
     model.print_attributes();
     //std::vector<uint8_t> output {10};
@@ -280,12 +252,12 @@ int main(void){
 
     outfmt output = model.predict(img, 2);
 
-    for (auto v : output) {
-        for (auto vv : v) {
-            std::cout << vv << " ";
-        }
-        std::cout << std::endl;
-    }
+    // for (auto v : output) {
+    //     for (auto vv : v) {
+    //         std::cout << vv << " ";
+    //     }
+    //     std::cout << std::endl;
+    // }
     
 }
 
@@ -293,11 +265,13 @@ int main(void){
 BOOST_PYTHON_MODULE(neuropl)
 {
     using namespace boost::python;
-    using outfmt = typename std::vector<std::vector<unsigned char>>;
-    //using outfmt = typename np::ndarray;
+    using outfmt = uint8_t;
 
-    class_<Neuropl<outfmt>>("Neuropl",  init<std::string>())
-         .def("predict", &Neuropl<outfmt>::predict)
+    //np::ndarray predict(np::ndarray image, int inputLen);;
+    np::ndarray (Neuropl<outfmt>::*predict)(np::ndarray image, int inputLen) = &Neuropl<outfmt>::predict;
+
+    class_<Neuropl<outfmt>>("Neuropl",  init<std::string, int, int>())
+         .def("predict", predict)
          .def("print_attributes", &Neuropl<outfmt>::print_attributes)
          .def("setModelPath", &Neuropl<outfmt>::setModelPath)
         ;
