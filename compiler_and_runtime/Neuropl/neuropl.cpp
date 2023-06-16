@@ -76,19 +76,13 @@ np::ndarray convertToNdarray(const std::vector<std::vector<unsigned char>>& data
     return ndarray;
 }
 
-
-//T predict(uint8_t* image) {
 template <typename T>
 np::ndarray Neuropl<T>::predict(np::ndarray image, int inputLen) {    
     std::cout << "predict " << std::endl;
     //uint8_t* ptr = image.data;
     
     /* Call all the NeuroRuntime functions just like how runtime.cpp does. */
-    
-
-
-
-        // Setup the environment options for the Neuron Runtime
+    // Setup the environment options for the Neuron Runtime
     EnvOptions envOptions = {
         .deviceKind = kEnvOptHardware,
         .MDLACoreOption = 1,  // Force single MDLA
@@ -267,7 +261,6 @@ BOOST_PYTHON_MODULE(neuropl)
     using namespace boost::python;
     using outfmt = uint8_t;
 
-    //np::ndarray predict(np::ndarray image, int inputLen);;
     np::ndarray (Neuropl<outfmt>::*predict)(np::ndarray image, int inputLen) = &Neuropl<outfmt>::predict;
 
     class_<Neuropl<outfmt>>("Neuropl",  init<std::string, int, int>())

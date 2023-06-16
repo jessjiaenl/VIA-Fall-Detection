@@ -9,6 +9,7 @@
 #include <dlfcn.h>
 #include <getopt.h>
 #include <cstdlib>
+//#include "NeuroplTypedefs.h"
 
 #include <boost/python.hpp>
 #include <boost/python/numpy.hpp>
