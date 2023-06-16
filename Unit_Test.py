@@ -4,17 +4,31 @@ import neuropl
 import cv2
 import numpy as np
 
+import tensorflow as tf
+assert tf.__version__.startswith('2')
+
 class SingleModel:
   model = None
   input_type = np.uint8 # manually specified by client
   output_type = np.uint8 # manually specified by client
-  input_shape = [1,224,224,3] # manually specified by client
-  output_shape = [1,2] # manually specified by client
+  input_shape = [1,300,300,3] # manually specified by client
+  output_shape = [1,1917,4] # manually specified by client
 
-  def __init__(self, model_path):
-    self.model = neuropl.Neuropl(model_path) # .dla
-    # self.input_type = self.model.get_intput_type()
-    # self.output_type = self.model.get_output_type()
+  # for tflite interpreter usage
+  interpreter = None
+  output_index = 0
+  input_index = 0
+
+  def __init__(self, modelPath):
+    # self.model = neuropl.Neuropl(modelPath) # .dla
+    # initialize tensor
+    self.interpreter = tf.lite.Interpreter(model_path=modelPath)
+    self.interpreter.allocate_tensors()
+    output = self.interpreter.get_output_details()
+    input = self.interpreter.get_input_details()
+    self.output_index = output[0]['index']
+    self.input_index = input[0]['index']
+
   
   def predictFrame(self, frame):
     # match model input shape
@@ -25,4 +39,18 @@ class SingleModel:
     # match model input type
     input = frame_rgb.astype(self.input_type)
 
-    return self.model.predict(input, len(self.input_shape), len(self.output_shape)) # assume this outputs [movingprob, stillprob]
+    # predict using interpreter
+    self.interpreter.set_tensor(self.input_index, input)
+    self.interpreter.invoke()
+
+    output_data = self.interpreter.get_tensor(self.output_index)
+    # output_data = output_data[0]
+
+    # predict using neuropl
+    # output_data = self.model.predict(input, len(self.input_shape), len(self.output_shape))
+
+    # print(output_data.shape)
+    # for i in range(output_data.shape[1]):
+    #   confidence = output_data[0][i]
+
+    return output_data

@@ -16,7 +16,7 @@ def predict(model, frame):
 
 def render(result, modelidx):
     # UI.draw_tab(pic) 
-    print(result, modelidx)
+    print(result)
     return 1
 
 def predictNRenderVid(model, vid_path):
@@ -34,7 +34,7 @@ def predictNRenderVid(model, vid_path):
 if __name__ == '__main__':
     # modelidx, model_path, useVid, vid_path = sys.argv
     # UI = GUI.GUI()
-    modelidx, model_path, useVid, vid_path = 0, "", True, "./datasets/model1_vids/original/jess_IMG_0480.MOV"
+    modelidx, model_path, useVid, vid_path = 2, "./tflite_models/mobilenet_ssd_pascal_quant.tflite", True, "./datasets/model1_vids/original/jess_IMG_0480.MOV"
     model = Fall_Detection.FallDet()
     if modelidx != 0: model = Unit_Test.SingleModel(model_path)
     '''
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     "./datasets/model1_vids/resized_IMG_0480.MOV"
     model paths:
     open pose: "openpose_mobilenetv0.75_quant_1x368x368x3.dla"
-    obj det: "mobilenet_ssd_pascal_quant.dla"
+    obj det: "./tflite_models/mobilenet_ssd_pascal_quant.dla"
     '''
 
     if useVid:
