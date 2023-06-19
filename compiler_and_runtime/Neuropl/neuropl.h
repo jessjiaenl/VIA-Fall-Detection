@@ -18,21 +18,31 @@
 namespace bp = boost::python;
 namespace np = boost::python::numpy;
 
-template <typename T>
+//template <typename T>
 class Neuropl{
 public:
     /* The constructor function*/ 
-    Neuropl(std::string path, int inputLen, int outputLen); 
+    Neuropl(std::string path, int num_of_inputs, int num_of_outputs); 
+
     void setModelPath(std::string path);
     /* Functions for testing pruposes. Will remove later. */
     void print_attributes();
 
-    np::ndarray predict(np::ndarray image, int inputLen);;
-    std::vector<std::vector<T>> predict(cv::Mat mat);
+    np::ndarray predict(np::ndarray image);
+
+    template <typename T>
+    std::vector<std::vector<T>> predict(cv::Mat image);
+
+    //bool predict(cv::Mat image, std::vector<std::vector<T>>& result);
+    //std::vector<std::vector<T>> predict(cv::Mat image, std::vector<std::vector<T>>& result);
 
 private:
     
     std::string model_path;
+    size_t num_of_inputs;
+    size_t num_of_outputs;
+
+    size_t input_size;
     size_t required_size;
     void* runtime;
     void * handle;

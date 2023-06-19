@@ -6,8 +6,10 @@ namespace np = boost::python::numpy;
 /* Constructor function. */
 
 /* Using default arguements for loop_count and num_results*/
-template <typename T>
-Neuropl<T>::Neuropl(std::string path, int inputLen, int outputLen){ 
+Neuropl::Neuropl(std::string path, int num_of_inputs, int num_of_outputs):
+	num_of_inputs (num_of_inputs),
+	num_of_outputs (num_of_outputs)
+{ 
     std::cout << "constructor " << std::endl;
     model_path = path;
     Py_Initialize();
@@ -36,51 +38,7 @@ Neuropl<T>::Neuropl(std::string path, int inputLen, int outputLen){
     LOAD_FUNCTIONS(NeuronRuntime_getOutputSize, getOutputSize);
     LOAD_FUNCTIONS(NeuronRuntime_getSingleOutputSize, getSingleOutputSize);
     LOAD_FUNCTIONS(NeuronRuntime_getProfiledQoSData, getProfiledQoSData);
-}
 
-/* Function implementations. */
-
-/* These function is for testing purposes only. */
-template <typename T>
-void Neuropl<T>::print_attributes(void){
-    std::cout << "print_attributes " << std::endl;
-    std::cout << "model_path: " + model_path << std::endl;
-
-}
-
-template <typename T>
-void Neuropl<T>::setModelPath(std::string path){
-    std::cout << "SetModelPath " << std::endl;
-    model_path = path;
-
-}
-
-np::ndarray convertToNdarray(const std::vector<std::vector<unsigned char>>& data)
-{
-    // Get the shape of the data
-    const std::size_t rows = data.size();
-    const std::size_t cols = data.empty() ? 0 : data[0].size();
-
-    // Create a NumPy ndarray with the same shape
-    np::ndarray ndarray = np::zeros(bp::make_tuple(rows, cols), np::dtype::get_builtin<unsigned char>());
-
-    // Copy the data to the ndarray
-    for (std::size_t i = 0; i < rows; ++i)
-    {
-        const std::vector<unsigned char>& row = data[i];
-        for (std::size_t j = 0; j < cols; ++j)
-        {
-            *reinterpret_cast<unsigned char*>(ndarray.get_data() + i * ndarray.strides(0) + j * ndarray.strides(1)) = row[j];
-        }
-    }
-    return ndarray;
-}
-
-template <typename T>
-np::ndarray Neuropl<T>::predict(np::ndarray image, int inputLen) {    
-    std::cout << "predict " << std::endl;
-    //uint8_t* ptr = image.data;
-    
     /* Call all the NeuroRuntime functions just like how runtime.cpp does. */
     // Setup the environment options for the Neuron Runtime
     EnvOptions envOptions = {
@@ -116,21 +74,149 @@ np::ndarray Neuropl<T>::predict(np::ndarray image, int inputLen) {
     }
 
     // Check the required input buffer size
-    err_code = (*getSingleInputSize)(runtime, &required_size);
+    err_code = (*getSingleInputSize)(runtime, &input_size);
     if (err_code != NEURONRUNTIME_NO_ERROR) {
         std::cerr << "Failed to get single input size for network." << std::endl;
         exit(3);
     }
-    std::cout << "The required size of the input buffer is " << required_size << std::endl;
+    std::cout << "The required size of the input buffer is " << input_size << std::endl;
+
+}
+
+/* Function implementations. */
+
+/* These function is for testing purposes only. */
+void Neuropl::print_attributes(void){
+    std::cout << "print_attributes " << std::endl;
+    std::cout << "model_path: " + model_path << std::endl;
+
+}
+
+void Neuropl::setModelPath(std::string path){
+    std::cout << "SetModelPath " << std::endl;
+    model_path = path;
+
+}
+
+np::ndarray convertToNdarray(const std::vector<std::vector<unsigned char>>& data)
+{
+    // Get the shape of the data
+    const std::size_t rows = data.size();
+    const std::size_t cols = data.empty() ? 0 : data[0].size();
+
+    // Create a NumPy ndarray with the same shape
+    np::ndarray ndarray = np::zeros(bp::make_tuple(rows, cols), np::dtype::get_builtin<unsigned char>());
+
+    // Copy the data to the ndarray
+    for (std::size_t i = 0; i < rows; ++i)
+    {
+        const std::vector<unsigned char>& row = data[i];
+        for (std::size_t j = 0; j < cols; ++j)
+        {
+            *reinterpret_cast<unsigned char*>(ndarray.get_data() + i * ndarray.strides(0) + j * ndarray.strides(1)) = row[j];
+        }
+    }
+    return ndarray;
+}
+
+/* For C++ users */
+template <typename T>
+std::vector<std::vector<T>> Neuropl::predict(cv::Mat image)
+{
+    int err_code;
+    int array_size = 1;
+    for(int i = 0; i < image.dims; i++){
+        array_size *= image.size[i];
+    }
+
+    if(array_size != input_size){
+        std::cerr << "Input dimension mismatch. " << std::endl;
+        exit(1);
+    }
+
+    // Get the buffer pointer and size
+    uint8_t* byte_buffer = reinterpret_cast<uint8_t*>(image.data);
+
+    // Set the input buffer with our memory buffer (pixels inside)
+    BufferAttribute attr {-1};
+    err_code = (*setSingleInput)(runtime, static_cast<void *>(byte_buffer), input_size, attr);
+    if (err_code != NEURONRUNTIME_NO_ERROR) {
+        std::cerr << "Failed to set single input for network." << std::endl;
+        exit(3);
+    }
+
+    std::vector<std::vector<T>> ret;
+    
+    T* out_buf;
+    for(int i = 0; i < 10; i++){
+        err_code = (*getOutputSize)(runtime, i, &required_size);
+        if (err_code != NEURONRUNTIME_NO_ERROR) {
+            break;
+        }
+        std::vector<T> vect;
+        vect.push_back(required_size);
+        std::cout << "Output size " << i <<" is " << required_size << std::endl;
+        ret.push_back(vect);
+        out_buf = ret[i].data();
+        err_code = (*setOutput)(runtime, i, static_cast<void *>(out_buf), required_size, attr);
+        if (err_code != NEURONRUNTIME_NO_ERROR) {
+            std::cerr << "Failed to set single output for network." << std::endl;
+            exit(3);
+        }
+    }
+
+    // Step 5. Do the inference with Neuron Runtime
+    err_code = (*inference)(runtime);
+    if (err_code != NEURONRUNTIME_NO_ERROR) {
+        std::cerr << "Failed to inference the input." << std::endl;
+        exit(3);
+    }
+
+    // (Optional) Get profiled QoS Data
+    // Neuron Rutime would allocate ProfiledQoSData instance when the input profiledQoSData is nullptr.
+    /* QoS stands for Quality of Service. We want these numbers. */
+    ProfiledQoSData* profiledQoSData = nullptr;
+    uint8_t executingBoostValue;
+    err_code = (*getProfiledQoSData)(runtime, &profiledQoSData, &executingBoostValue);
+    if (err_code != NEURONRUNTIME_NO_ERROR) {
+        std::cerr << "Failed to Get QoS Data" << std::endl;
+    }
+
+    // (Optional) Print out profiled QoS Data and executing boost value
+    if (profiledQoSData != nullptr) {
+        std::cout << "Dump the profiled QoS Data:" << std::endl;
+        std::cout << "executing boost value = " << +executingBoostValue << std::endl;
+        for (uint32_t i = 0u; i < profiledQoSData->numSubgraph; ++i) {
+            for (uint32_t j = 0u; j < profiledQoSData->numSubCmd[i]; ++j) {
+                std::cout << "SubCmd[" << i << "][" << j << "]:" << std::endl;
+                std::cout << "execution time = " << profiledQoSData->qosData[i][j].execTime << std::endl;
+                std::cout << "boost value = " << +profiledQoSData->qosData[i][j].boostValue << std::endl;
+                std::cout << "bandwidth = " << profiledQoSData->qosData[i][j].bandwidth << std::endl;
+            }
+        }
+    } else {
+        std::cerr << "profiledQoSData is nullptr" << std::endl;
+    }
+
+    // Step 6. Release the runtime resource
+    (*release)(runtime);
+
+	return ret;
+}
+
+/* For Python users */
+np::ndarray Neuropl::predict(np::ndarray image) {    
+    std::cout << "predict " << std::endl;
+    int err_code;
 
     /* Verify input size. Assuming img is 2 dimentional. */
     np::ndarray npArray = bp::extract<np::ndarray>(image);
     int array_size = 1;
-    for(int i = 0; i < inputLen; i++){
+    for(int i = 0; i < num_of_inputs; i++){
         array_size*= (int)(npArray.shape(i));
     }
 
-    if(array_size != required_size){
+    if(array_size != input_size){
         std::cerr << "Input dimension mismatch. " << std::endl;
         exit(1);
     }
@@ -138,10 +224,9 @@ np::ndarray Neuropl<T>::predict(np::ndarray image, int inputLen) {
     // Get the buffer pointer and size
     uint8_t* byte_buffer = reinterpret_cast<uint8_t*>(npArray.get_data());
 
-
     // Set the input buffer with our memory buffer (pixels inside)
     BufferAttribute attr {-1};
-    err_code = (*setSingleInput)(runtime, static_cast<void *>(byte_buffer), required_size, attr);
+    err_code = (*setSingleInput)(runtime, static_cast<void *>(byte_buffer), input_size, attr);
     if (err_code != NEURONRUNTIME_NO_ERROR) {
         std::cerr << "Failed to set single input for network." << std::endl;
         exit(3);
@@ -209,8 +294,7 @@ np::ndarray Neuropl<T>::predict(np::ndarray image, int inputLen) {
     return retNumpy;
 }
 
-template <typename T>
-void *  Neuropl<T>::load_func(void * handle, const char * func_name) {
+void *  Neuropl::load_func(void * handle, const char * func_name) {
     /* Load the function specified by func_name, and exit if the loading is failed. */
     void * func_ptr = dlsym(handle, func_name); /* Find the run-time address in the shared object HANDLE refers to of the symbol called NAME.  */
 
@@ -222,29 +306,30 @@ void *  Neuropl<T>::load_func(void * handle, const char * func_name) {
 }
 
 int main(void){
-    std::cout << "Using 2 default arguments" << std::endl;
-    //neuropl *n = new neuropl("I scream :O");
-    // Py_Initialize();
-    // np::initialize();
-    //typedef std::vector<std::vector<unsigned char>> outfmt;
-    //using outfmt = typename std::vector<std::vector<unsigned char>>;
+    std::cout << "Welcome" << std::endl;
     using outfmt = typename np::ndarray;
 
     std::string model_path {"./../model1.dla"};
-    
+    std::vector<std::vector<uint8_t>> ret;
     //2 ways to call a function in C++.
-    Neuropl<outfmt> model{model_path, 10, 2};
+    //Neuropl<outfmt> model{model_path, ret, 2};
+ 
+    Neuropl model {model_path, 1, 2};
+
     //Neuropl<outfmt> m2 = Neuropl<outfmt>(model_path);
     model.print_attributes();
     //std::vector<uint8_t> output {10};
-    const int rows = 224;
-    const int cols = 224;
+ 
+    // Python example
+ 
+    int rows = 224;
+    int cols = 224;
     // Create a NumPy shape tuple
     bp::tuple shape = bp::make_tuple(rows, cols);
     const np::dtype dtype = np::dtype::get_builtin<unsigned char>();
     np::ndarray img = np::zeros(shape, dtype);
 
-    outfmt output = model.predict(img, 2);
+    outfmt output = model.predict(img);
 
     // for (auto v : output) {
     //     for (auto vv : v) {
@@ -253,19 +338,30 @@ int main(void){
     //     std::cout << std::endl;
     // }
     
-}
+    // C++ example
+    cv::Mat image(224, 224, CV_8UC3);
+    auto result = model.predict<uint8_t>(image);
 
+    for (auto v : result) {
+        for (auto vv : v) {
+            std::cout << vv << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    return 0;
+}
 
 BOOST_PYTHON_MODULE(neuropl)
 {
     using namespace boost::python;
     using outfmt = uint8_t;
 
-    np::ndarray (Neuropl<outfmt>::*predict)(np::ndarray image, int inputLen) = &Neuropl<outfmt>::predict;
+    np::ndarray (Neuropl::*predict)(np::ndarray image) = &Neuropl::predict;
 
-    class_<Neuropl<outfmt>>("Neuropl",  init<std::string, int, int>())
+    class_<Neuropl>("Neuropl",  init<std::string, int, int>())
          .def("predict", predict)
-         .def("print_attributes", &Neuropl<outfmt>::print_attributes)
-         .def("setModelPath", &Neuropl<outfmt>::setModelPath)
+         .def("print_attributes", &Neuropl::print_attributes)
+         .def("setModelPath", &Neuropl::setModelPath)
         ;
 }
