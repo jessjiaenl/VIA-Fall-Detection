@@ -9,7 +9,6 @@
 #include <dlfcn.h>
 #include <getopt.h>
 #include <cstdlib>
-//#include "NeuroplTypedefs.h"
 
 #include <boost/python.hpp>
 #include <boost/python/numpy.hpp>
@@ -29,12 +28,8 @@ public:
     void print_attributes();
 
     np::ndarray predict(np::ndarray image);
-
     template <typename T>
-    std::vector<std::vector<T>> predict(cv::Mat image);
-
-    //bool predict(cv::Mat image, std::vector<std::vector<T>>& result);
-    //std::vector<std::vector<T>> predict(cv::Mat image, std::vector<std::vector<T>>& result);
+    std::vector<std::vector<T>> predict(uint8_t* byte_buffer);
 
 private:
     

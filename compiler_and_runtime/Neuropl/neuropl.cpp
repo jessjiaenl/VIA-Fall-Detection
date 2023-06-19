@@ -121,22 +121,10 @@ np::ndarray convertToNdarray(const std::vector<std::vector<unsigned char>>& data
 
 /* For C++ users */
 template <typename T>
-std::vector<std::vector<T>> Neuropl::predict(cv::Mat image)
+std::vector<std::vector<T>> Neuropl::predict(uint8_t* byte_buffer)
 {
+    //uint8_t* byte_buffer;
     int err_code;
-    int array_size = 1;
-    for(int i = 0; i < image.dims; i++){
-        array_size *= image.size[i];
-    }
-
-    if(array_size != input_size){
-        std::cerr << "Input dimension mismatch. " << std::endl;
-        exit(1);
-    }
-
-    // Get the buffer pointer and size
-    uint8_t* byte_buffer = reinterpret_cast<uint8_t*>(image.data);
-
     // Set the input buffer with our memory buffer (pixels inside)
     BufferAttribute attr {-1};
     err_code = (*setSingleInput)(runtime, static_cast<void *>(byte_buffer), input_size, attr);
@@ -199,7 +187,7 @@ std::vector<std::vector<T>> Neuropl::predict(cv::Mat image)
     }
 
     // Step 6. Release the runtime resource
-    (*release)(runtime);
+    //(*release)(runtime);
 
 	return ret;
 }
@@ -207,9 +195,8 @@ std::vector<std::vector<T>> Neuropl::predict(cv::Mat image)
 /* For Python users */
 np::ndarray Neuropl::predict(np::ndarray image) {    
     std::cout << "predict " << std::endl;
-    int err_code;
 
-    /* Verify input size. Assuming img is 2 dimentional. */
+    /* Verify input size. */
     np::ndarray npArray = bp::extract<np::ndarray>(image);
     int array_size = 1;
     for(int i = 0; i < num_of_inputs; i++){
@@ -224,70 +211,7 @@ np::ndarray Neuropl::predict(np::ndarray image) {
     // Get the buffer pointer and size
     uint8_t* byte_buffer = reinterpret_cast<uint8_t*>(npArray.get_data());
 
-    // Set the input buffer with our memory buffer (pixels inside)
-    BufferAttribute attr {-1};
-    err_code = (*setSingleInput)(runtime, static_cast<void *>(byte_buffer), input_size, attr);
-    if (err_code != NEURONRUNTIME_NO_ERROR) {
-        std::cerr << "Failed to set single input for network." << std::endl;
-        exit(3);
-    }
-    
-    std::vector<std::vector<unsigned char>> ret;
-    
-    unsigned char* out_buf;
-    for(int i = 0; i < 10; i++){
-        err_code = (*getOutputSize)(runtime, i, &required_size);
-        if (err_code != NEURONRUNTIME_NO_ERROR) {
-            break;
-        }
-        std::vector<unsigned char> vect;
-        vect.push_back(required_size);
-        std::cout << "Output size " << i <<" is " << required_size << std::endl;
-        ret.push_back(vect);
-        out_buf = ret[i].data();
-        err_code = (*setOutput)(runtime, i, static_cast<void *>(out_buf), required_size, attr);
-        if (err_code != NEURONRUNTIME_NO_ERROR) {
-            std::cerr << "Failed to set single output for network." << std::endl;
-            exit(3);
-        }
-    }
-
-    // Step 5. Do the inference with Neuron Runtime
-    err_code = (*inference)(runtime);
-    if (err_code != NEURONRUNTIME_NO_ERROR) {
-        std::cerr << "Failed to inference the input." << std::endl;
-        exit(3);
-    }
-
-    // (Optional) Get profiled QoS Data
-    // Neuron Rutime would allocate ProfiledQoSData instance when the input profiledQoSData is nullptr.
-    /* QoS stands for Quality of Service. We want these numbers. */
-    ProfiledQoSData* profiledQoSData = nullptr;
-    uint8_t executingBoostValue;
-    err_code = (*getProfiledQoSData)(runtime, &profiledQoSData, &executingBoostValue);
-    if (err_code != NEURONRUNTIME_NO_ERROR) {
-        std::cerr << "Failed to Get QoS Data" << std::endl;
-    }
-
-    // (Optional) Print out profiled QoS Data and executing boost value
-    if (profiledQoSData != nullptr) {
-        std::cout << "Dump the profiled QoS Data:" << std::endl;
-        std::cout << "executing boost value = " << +executingBoostValue << std::endl;
-        for (uint32_t i = 0u; i < profiledQoSData->numSubgraph; ++i) {
-            for (uint32_t j = 0u; j < profiledQoSData->numSubCmd[i]; ++j) {
-                std::cout << "SubCmd[" << i << "][" << j << "]:" << std::endl;
-                std::cout << "execution time = " << profiledQoSData->qosData[i][j].execTime << std::endl;
-                std::cout << "boost value = " << +profiledQoSData->qosData[i][j].boostValue << std::endl;
-                std::cout << "bandwidth = " << profiledQoSData->qosData[i][j].bandwidth << std::endl;
-            }
-        }
-    } else {
-        std::cerr << "profiledQoSData is nullptr" << std::endl;
-    }
-
-    // Step 6. Release the runtime resource
-    (*release)(runtime);
-
+    auto ret = Neuropl::predict<unsigned char>(byte_buffer);
     // Step 7. convert ret from vector vector to 2d numpy array
     np::ndarray retNumpy = convertToNdarray(ret);
     
@@ -313,12 +237,10 @@ int main(void){
     std::vector<std::vector<uint8_t>> ret;
     //2 ways to call a function in C++.
     //Neuropl<outfmt> model{model_path, ret, 2};
- 
     Neuropl model {model_path, 1, 2};
 
     //Neuropl<outfmt> m2 = Neuropl<outfmt>(model_path);
     model.print_attributes();
-    //std::vector<uint8_t> output {10};
  
     // Python example
  
@@ -329,7 +251,7 @@ int main(void){
     const np::dtype dtype = np::dtype::get_builtin<unsigned char>();
     np::ndarray img = np::zeros(shape, dtype);
 
-    outfmt output = model.predict(img);
+    //outfmt output = model.predict(img);
 
     // for (auto v : output) {
     //     for (auto vv : v) {
@@ -340,7 +262,9 @@ int main(void){
     
     // C++ example
     cv::Mat image(224, 224, CV_8UC3);
-    auto result = model.predict<uint8_t>(image);
+    // Get the buffer pointer and size
+    uint8_t* byte_buffer = reinterpret_cast<uint8_t*>(image.data);
+    auto result = model.predict<uint8_t>(byte_buffer);
 
     for (auto v : result) {
         for (auto vv : v) {
@@ -361,7 +285,5 @@ BOOST_PYTHON_MODULE(neuropl)
 
     class_<Neuropl>("Neuropl",  init<std::string, int, int>())
          .def("predict", predict)
-         .def("print_attributes", &Neuropl::print_attributes)
-         .def("setModelPath", &Neuropl::setModelPath)
         ;
 }
