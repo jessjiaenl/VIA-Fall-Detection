@@ -45,8 +45,8 @@ class FallDet:
         self.model2 = tf.keras.models.load_model("model2")
         '''
         # using neuropl API
-        # self.model1 = neuropl.Neuropl("model1.dla", len(self.model1_input_shape), len(self.model1_output_shape)) # model1 in: uint8 (1x224x224x3) out: uint8 (1x2)
-        # self.model2 = neuropl.Neuropl("model2.dla", len(self.model2_input_shape), len(self.model2_output_shape)) # model2 in: uint8 (1x16) out: uint8 (1x1)
+        self.model1 = neuropl.Neuropl("model1.dla", len(self.model1_input_shape), len(self.model1_output_shape)) # model1 in: uint8 (1x224x224x3) out: uint8 (1x2)
+        self.model2 = neuropl.Neuropl("model2.dla", len(self.model2_input_shape), len(self.model2_output_shape)) # model2 in: uint8 (1x16) out: uint8 (1x1)
         
     
     def predictFrame(self, frame):
@@ -66,8 +66,7 @@ class FallDet:
         output_data = output_data[0]
         '''
         # predict using neuropl
-        output_data = self.model1.predict(frame_rgb) # assume this outputs [movingprob, stillprob]
-
+        output_data = self.model1.predict(frame_rgb)[0] # assume this outputs [movingprob, stillprob]
 
         # below remains the same regardless of neuropl API usage
         # output_probs = tf.nn.softmax(output_data.astype(float)) # use tf
@@ -90,5 +89,5 @@ class FallDet:
     
     def predictVid(self): #  main doesn't call this function
         model2_in = np.array(self.probs).reshape((1, 16))
-        vid_preds = self.model2.predict(model2_in) # uint8 1x1
+        vid_preds = self.model2.predict(model2_in)[0] # uint8 1x1
         return (vid_preds.reshape((1, len(vid_preds))) > self.threshold)[0][0]
