@@ -1,0 +1,2 @@
+aarch64-linux-gnu-g++  -I /usr/include/opencv -I /usr/include -I /usr/include/boost/python neuropl.cpp -o  neuropl.so -shared -fPIC  $(pkg-config opencv4 python3 --cflags --libs) $(python3-config --ldflags --embed) -lboost_python310  -lboost_numpy310
+aarch64-linux-gnu-g++  -I /usr/include/opencv -I /usr/include -I /usr/include/boost/python neuropl.cpp -o  test $(pkg-config opencv4 python3 --cflags --libs) $(python3-config --ldflags --embed) -lboost_python310  -lboost_numpy310
