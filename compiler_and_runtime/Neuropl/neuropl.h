@@ -27,7 +27,7 @@ public:
     /* Functions for testing pruposes. Will remove later. */
     void print_attributes();
 
-    np::ndarray predict(np::ndarray image);
+    bp::list predict(np::ndarray image);
     template <typename T>
     std::vector<std::vector<T>> predict(uint8_t* byte_buffer);
 

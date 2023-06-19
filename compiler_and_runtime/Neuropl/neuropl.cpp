@@ -98,6 +98,21 @@ void Neuropl::setModelPath(std::string path){
 
 }
 
+bp::list convertToListOfNdarrays(const std::vector<std::vector<unsigned char>>& data)
+{
+    typename std::vector<std::vector<unsigned char>>::const_iterator iter;
+    boost::python::list list;
+    for (iter = data.begin(); iter != data.end(); ++iter) {
+        np::ndarray ndarray = np::zeros(bp::make_tuple((*iter).size()), np::dtype::get_builtin<unsigned char>());
+        for (std::size_t i = 0; i < (*iter).size(); ++i)
+        {
+            *reinterpret_cast<unsigned char*>(ndarray.get_data() + i * ndarray.strides(0)) = (*iter)[i];
+        }
+        list.append(ndarray);
+    }
+    return list;
+}
+
 np::ndarray convertToNdarray(const std::vector<std::vector<unsigned char>>& data)
 {
     // Get the shape of the data
@@ -193,17 +208,19 @@ std::vector<std::vector<T>> Neuropl::predict(uint8_t* byte_buffer)
 }
 
 /* For Python users */
-np::ndarray Neuropl::predict(np::ndarray image) {    
+bp::list Neuropl::predict(np::ndarray image) {    
     std::cout << "predict " << std::endl;
 
     /* Verify input size. */
     np::ndarray npArray = bp::extract<np::ndarray>(image);
     int array_size = 1;
-    for(int i = 0; i < num_of_inputs; i++){
+    for(int i = 0; i < image.get_nd(); i++){
+        std::cout<< i << std::endl;
         array_size*= (int)(npArray.shape(i));
     }
 
     if(array_size != input_size){
+        std::cerr << "Actual input size =  "<< array_size  <<"Expected input size = "<< input_size<< std::endl;
         std::cerr << "Input dimension mismatch. " << std::endl;
         exit(1);
     }
@@ -213,7 +230,7 @@ np::ndarray Neuropl::predict(np::ndarray image) {
 
     auto ret = Neuropl::predict<unsigned char>(byte_buffer);
     // Step 7. convert ret from vector vector to 2d numpy array
-    np::ndarray retNumpy = convertToNdarray(ret);
+    auto retNumpy = convertToListOfNdarrays(ret);
     
     return retNumpy;
 }
@@ -281,7 +298,7 @@ BOOST_PYTHON_MODULE(neuropl)
     using namespace boost::python;
     using outfmt = uint8_t;
 
-    np::ndarray (Neuropl::*predict)(np::ndarray image) = &Neuropl::predict;
+    bp::list (Neuropl::*predict)(np::ndarray image) = &Neuropl::predict;
 
     class_<Neuropl>("Neuropl",  init<std::string, int, int>())
          .def("predict", predict)
