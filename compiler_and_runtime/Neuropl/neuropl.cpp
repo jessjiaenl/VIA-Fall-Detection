@@ -83,6 +83,13 @@ Neuropl::Neuropl(std::string path, int num_of_inputs, int num_of_outputs):
 
 }
 
+/*Destructor function */
+Neuropl::~Neuropl() {
+    /* Releases runtime resources */
+    std::cout << "Destructor invoked" << std::endl;
+    (*release)(runtime);
+}
+
 /* Function implementations. */
 
 /* These function is for testing purposes only. */
@@ -237,7 +244,7 @@ bp::list Neuropl::predict(np::ndarray image) {
 
 void *  Neuropl::load_func(void * handle, const char * func_name) {
     /* Load the function specified by func_name, and exit if the loading is failed. */
-    void * func_ptr = dlsym(handle, func_name); /* Find the run-time address in the shared object HANDLE refers to of the symbol called NAME.  */
+    void * func_ptr = dlsym(handle, func_name); /* Find the run-time address in the shared object HANDLE refers to of the symbol called NAME. */
 
     if (func_name == nullptr) {
         std::cerr << "Find " << func_name << " function failed." << std::endl;
@@ -248,34 +255,9 @@ void *  Neuropl::load_func(void * handle, const char * func_name) {
 
 int main(void){
     std::cout << "Welcome" << std::endl;
-    using outfmt = typename np::ndarray;
 
     std::string model_path {"./../model1.dla"};
-    std::vector<std::vector<uint8_t>> ret;
-    //2 ways to call a function in C++.
-    //Neuropl<outfmt> model{model_path, ret, 2};
     Neuropl model {model_path, 1, 2};
-
-    //Neuropl<outfmt> m2 = Neuropl<outfmt>(model_path);
-    model.print_attributes();
- 
-    // Python example
- 
-    int rows = 224;
-    int cols = 224;
-    // Create a NumPy shape tuple
-    bp::tuple shape = bp::make_tuple(rows, cols);
-    const np::dtype dtype = np::dtype::get_builtin<unsigned char>();
-    np::ndarray img = np::zeros(shape, dtype);
-
-    //outfmt output = model.predict(img);
-
-    // for (auto v : output) {
-    //     for (auto vv : v) {
-    //         std::cout << vv << " ";
-    //     }
-    //     std::cout << std::endl;
-    // }
     
     // C++ example
     cv::Mat image(224, 224, CV_8UC3);
@@ -296,7 +278,6 @@ int main(void){
 BOOST_PYTHON_MODULE(neuropl)
 {
     using namespace boost::python;
-    using outfmt = uint8_t;
 
     bp::list (Neuropl::*predict)(np::ndarray image) = &Neuropl::predict;
 
