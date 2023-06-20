@@ -11,8 +11,8 @@ class SingleModel:
   model = None
   input_type = np.uint8 # manually specified by client
   output_type = np.uint8 # manually specified by client
-  input_shape = [[1,368,368,3]] # manually specified by client
-  output_shape = [[1,46,46,57]] # manually specified by client
+  input_shape = [[1,300,300,3]] # manually specified by client
+  output_shape = [[1,1917,21], [1,1917,4]] # manually specified by client
 
   # for tflite interpreter usage
   interpreter = None
