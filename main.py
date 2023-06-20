@@ -24,7 +24,7 @@ def processObjDet(result): # outputs bounding
         if max(confidences[i]) >= threshold: rem_box_class.append((boxes[i], np.argmax(confidences[i])))
     return rem_box_class
 
-def render(result, modelidx):
+def render(result):
     # UI.draw_tab(pic)
     print(result)
     return 1
@@ -38,7 +38,7 @@ def predictNRenderVid(model, vid_path):
             ret, frame = cap.read()
         result = predict(model, frame)
         if modelidx == 2: result = processObjDet(result)
-        render(result, modelidx)
+        render(result)
         ret, frame = cap.read()
 
 
