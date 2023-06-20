@@ -14,7 +14,7 @@ def read_from_cam():
 def predict(model, frame):
     return model.predictFrame(frame)
 
-def processObjDet(result): # outputs bounding 
+def processObjDet(result): # outputs list of (bbox info, class id of bbox) for good bboxes
     confidences, boxes = result[0][0], result[1][0]
     row_sums = confidences.sum(axis=1)
     confidences = confidences/row_sums[:, np.newaxis] # normalize confidence
@@ -36,9 +36,11 @@ def predictNRenderVid(model, vid_path):
         if not ret:
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             ret, frame = cap.read()
+        
         result = predict(model, frame)
         if modelidx == 2: result = processObjDet(result)
         render(result)
+
         ret, frame = cap.read()
 
 
