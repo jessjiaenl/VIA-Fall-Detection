@@ -17,11 +17,13 @@
 namespace bp = boost::python;
 namespace np = boost::python::numpy;
 
-//template <typename T>
+
 class Neuropl{
 public:
-    /* The constructor function*/ 
-    Neuropl(std::string path, int num_of_inputs, int num_of_outputs); 
+    /* The constructor function */
+    Neuropl(std::string path, int num_of_inputs, int num_of_outputs);
+    /*The destructor function */
+    ~Neuropl();
 
     void setModelPath(std::string path);
     /* Functions for testing pruposes. Will remove later. */
