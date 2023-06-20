@@ -21,14 +21,11 @@ namespace np = boost::python::numpy;
 class Neuropl{
 public:
     /* The constructor function */
-    Neuropl(std::string path, int num_of_inputs, int num_of_outputs);
-    /*The destructor function */
+    Neuropl(std::string path);
+    /* The destructor function */
     ~Neuropl();
 
-    void setModelPath(std::string path);
-    /* Functions for testing pruposes. Will remove later. */
-    void print_attributes();
-
+    /* Functions */
     bp::list predict(np::ndarray image);
     template <typename T>
     std::vector<std::vector<T>> predict(uint8_t* byte_buffer);
@@ -36,17 +33,17 @@ public:
 private:
     
     std::string model_path;
-    size_t num_of_inputs;
-    size_t num_of_outputs;
 
     size_t input_size;
     size_t required_size;
     void* runtime;
     void * handle;
-
+    uint8_t input_buf[1][8*1024*1024];
+    uint8_t output_buf[4][8*1024*1024];
     /* Should be called once per neuropl initialization. */
     void * load_func(void * handle, const char * func_name);
 
+    /* typedef all the NeuronRuntime library functions */
     typedef int (*NeuronRuntime_create)(const EnvOptions* options, void** runtime);
     typedef int (*NeuronRuntime_loadNetworkFromFile)(void* runtime, const char* pathToDlaFile);
     typedef int (*NeuronRuntime_loadNetworkFromBuffer)(void* runtime, const void* buffer, size_t size);
@@ -62,6 +59,7 @@ private:
     typedef int (*NeuronRuntime_getProfiledQoSData)(void* runtime, ProfiledQoSData** profiledQoSData, uint8_t* execBoostValue);
     typedef int (*NeuronRuntime_inference)(void* runtime);
     typedef void (*NeuronRuntime_release)(void* runtime);
+    typedef int (*NeuronRuntime_getOutputPaddedDimensions)(void* runtime, uint64_t handle, RuntimeAPIDimensions* dims);
 
     NeuronRuntime_create rt_create;
     NeuronRuntime_loadNetworkFromFile loadNetworkFromFile;
@@ -77,4 +75,5 @@ private:
     NeuronRuntime_getOutputSize getOutputSize;
     NeuronRuntime_getSingleOutputSize getSingleOutputSize;
     NeuronRuntime_getProfiledQoSData getProfiledQoSData;
+    NeuronRuntime_getOutputPaddedDimensions getOutputPaddedDimensions;
 };
