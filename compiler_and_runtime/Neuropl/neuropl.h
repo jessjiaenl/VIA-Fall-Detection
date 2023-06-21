@@ -9,6 +9,10 @@
 #include <dlfcn.h>
 #include <getopt.h>
 #include <cstdlib>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include <boost/python.hpp>
 #include <boost/python/numpy.hpp>
@@ -36,9 +40,9 @@ private:
 
     size_t input_size;
     size_t required_size;
+    size_t num_outputs;
     void* runtime;
     void * handle;
-    uint8_t input_buf[1][8*1024*1024];
     uint8_t output_buf[4][8*1024*1024];
     /* Should be called once per neuropl initialization. */
     void * load_func(void * handle, const char * func_name);
