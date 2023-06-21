@@ -20,11 +20,12 @@ class FallDet:
     model1 = None
     model2 = None
 
-    model1_input_shape = [1,224,224,3] # hard coded for fall detection
-    model1_output_shape = [1,2] # hard coded for fall detection
-    model2_input_shape = [1,16] # hard coded for fall detection
-    model2_output_shape = [1,1]  # hard coded for fall detection
-    input_type = np.uint8 # hard coded for fall detection
+    # hard coded parameters for fall detection
+    model1_input_shape = [1,224,224,3] 
+    model1_output_shape = [1,2]
+    model2_input_shape = [1,16]
+    model2_output_shape = [1,1]
+    input_type = np.uint8
 
     probs = []
     frame = None
@@ -45,12 +46,18 @@ class FallDet:
         self.model2 = tf.keras.models.load_model("model2")
         '''
         # using neuropl API
-        self.model1 = neuropl.Neuropl("model1.dla", len(self.model1_input_shape), len(self.model1_output_shape)) # model1 in: uint8 (1x224x224x3) out: uint8 (1x2)
-        self.model2 = neuropl.Neuropl("model2.dla", len(self.model2_input_shape), len(self.model2_output_shape)) # model2 in: uint8 (1x16) out: uint8 (1x1)
+        self.model1 = neuropl.Neuropl("model1.dla") # model1 in: uint8 (1x224x224x3) out: uint8 (1x2)
+        self.model2 = neuropl.Neuropl("model2.dla") # model2 in: uint8 (1x16) out: uint8 (1x1)
         
+    def cropFrameToSquare(self, frame):
+        h, w, _ = frame.shape
+        target_len = min(h,w)
+        start_x, start_y = (w - target_len)//2, (h - target_len)//2
+        return frame[start_y:start_y+target_len, start_x:start_x+target_len, :]
     
     def predictFrame(self, frame):
         # match model input shape
+        frame = self.cropFrameToSquare(frame)
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # BGR to RGB
         frame_rgb = cv2.resize(frame_rgb, (self.model1_input_shape[1], self.model1_input_shape[2]), interpolation=cv2.INTER_AREA) # resize frame to 224x224
         frame_rgb = np.expand_dims(frame_rgb, axis=0) # resize to match tensor size [224x224x3] -> [1x224x224x3]
@@ -66,7 +73,7 @@ class FallDet:
         output_data = output_data[0]
         '''
         # predict using neuropl
-        output_data = self.model1.predict(frame_rgb)[0] # assume this outputs [movingprob, stillprob]
+        output_data = self.model1.predict(frame_rgb)[0] # API outputs [[movingprob, stillprob]]
 
         # below remains the same regardless of neuropl API usage
         # output_probs = tf.nn.softmax(output_data.astype(float)) # use tf
@@ -90,4 +97,4 @@ class FallDet:
     def predictVid(self): #  main doesn't call this function
         model2_in = np.array(self.probs).reshape((1, 16))
         vid_preds = self.model2.predict(model2_in)[0] # uint8 1x1
-        return (vid_preds.reshape((1, len(vid_preds))) > self.threshold)[0][0]
+        return (vid_preds.reshape((1, len(vid_preds))) > self.threshold) # [[bool]]

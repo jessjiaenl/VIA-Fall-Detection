@@ -19,8 +19,10 @@ class SingleModel:
   output_indices = [0]
   input_index = 0 # assumes single input
 
-  def __init__(self, modelPath):
-    # self.model = neuropl.Neuropl(modelPath, len(input_shape), len(output_shape)) # .dla
+  def __init__(self, modelPath, input_shape, output_shape, input_type, output_type):
+    # self.model = neuropl.Neuropl(modelPath) # .dla
+    self.input_shape, self.output_shape = input_shape, output_shape
+    self.input_type, self.output_type = input_type, output_type
     # initialize tensor
     self.interpreter = tf.lite.Interpreter(model_path=modelPath)
     self.interpreter.allocate_tensors()
@@ -29,9 +31,15 @@ class SingleModel:
     self.output_indices = [output[i]['index'] for i in range(len(output))]
     self.input_index = input[0]['index'] # assumes single input
 
-  
+  def cropFrameToSquare(self, frame):
+    h, w, _ = frame.shape
+    target_len = min(h,w)
+    start_x, start_y = (w - target_len)//2, (h - target_len)//2
+    return frame[start_y:start_y+target_len, start_x:start_x+target_len, :]
+
   def predictFrame(self, frame):
     # match model input shape
+    frame = self.cropFrameToSquare(frame)
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # BGR to RGB
     frame_rgb = cv2.resize(frame_rgb, (self.input_shape[0][1], self.input_shape[0][2]), interpolation=cv2.INTER_AREA) # resize image dim
     frame_rgb = np.expand_dims(frame_rgb, axis=0) # resize to match tensor size

@@ -45,22 +45,18 @@ def predictNRenderVid(model, vid_path):
 
 
 if __name__ == '__main__':
-    # modelidx, model_path, useVid, vid_path = sys.argv
     # UI = GUI.GUI()
-    modelidx, model_path, useVid, vid_path = 2, "./tflite_models/mobilenet_ssd_pascal_quant.tflite", True, "./datasets/model1_vids/original/jess_IMG_0480.MOV"
+    '''
+    modelidx {0 : fall detection, 1 : open pose, 2 : object detection}
+    '''
+    model_paths = ["", "./tflite_models/openpose_mobilenetv0.75_quant_1x368x368x3.tflite", "./tflite_models/mobilenet_ssd_pascal_quant.tflite"]
+    # modelidx, useVid, vid_path = sys.argv
+    modelidx, useVid, vid_path = 2, True, "./datasets/model1_vids/original/jess_IMG_0480.MOV"
     model = None
     if modelidx == 0: model = Fall_Detection.FallDet()
-    else: model = Unit_Test.SingleModel(model_path)
-    '''
-    modelidx is {0 : fall detection, 1 : open pose, 2 : object detection}
-    some test vid paths:
-    "./datasets/model1_vids/original/jess_IMG_0480.MOV"
-    "./datasets/model1_vids/resized_IMG_0480.MOV"
-    model paths:
-    open pose: "openpose_mobilenetv0.75_quant_1x368x368x3.dla"
-    obj det: "./tflite_models/mobilenet_ssd_pascal_quant.dla"
-    '''
-
+    elif modelidx == 1: model = Unit_Test.SingleModel(model_paths[modelidx], [[1,368,368,3]], [[1,46,46,57]], np.uint8, np.uint8)
+    else: model = Unit_Test.SingleModel(model_paths[modelidx], [[1,300,300,3]], [[1,1917,21],[1,1917,4]], np.uint8, np.uint8)
+    
     if useVid:
         predictNRenderVid(model, vid_path)
     else:
