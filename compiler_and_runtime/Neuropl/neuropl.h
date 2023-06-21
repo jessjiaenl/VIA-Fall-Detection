@@ -30,20 +30,17 @@ public:
     ~Neuropl();
 
     /* Functions */
-    bp::list predict(np::ndarray image);
-    template <typename T>
-    std::vector<std::vector<T>> predict(uint8_t* byte_buffer);
+    bp::list predict (np::ndarray data);
+    const std::vector<std::vector<uint8_t>> &predict(uint8_t* byte_buffer);
 
 private:
     
     std::string model_path;
 
     size_t input_size;
-    size_t required_size;
-    size_t num_outputs;
     void* runtime;
     void * handle;
-    uint8_t output_buf[4][8*1024*1024];
+    std::vector<std::vector<uint8_t>> output_buf;
     /* Should be called once per neuropl initialization. */
     void * load_func(void * handle, const char * func_name);
 
