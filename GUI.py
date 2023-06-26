@@ -183,14 +183,12 @@ class GUI:
     
     def draw_frame(self, frame, result):
         if self.currtab == 0:
-            #self.cnt+=1
-            # Resize the frame to fit within the box dimensions
             resized_frame = cv2.resize(frame, (self.video_box_width, self.video_box_height))
 
-            '''
             if result == True:
                 self.framefell = True
             if self.framefell == True:
+                self.cnt+=1
                 # Add a slightly dark overlay on the video box region
                 overlay = np.full(resized_frame.shape, (0, 0, 0), dtype=np.uint8)
                 self.alpha += self.fade_in_speed
@@ -220,11 +218,25 @@ class GUI:
             else:
                 # Put the resized frame in the video box region of the image
                 self.image[self.video_box_y:self.video_box_y + self.video_box_height, self.video_box_x:self.video_box_x + self.video_box_width] = resized_frame
-        '''
-            self.image[self.video_box_y:self.video_box_y + self.video_box_height, self.video_box_x:self.video_box_x + self.video_box_width] = resized_frame
+        
+            #self.image[self.video_box_y:self.video_box_y + self.video_box_height, self.video_box_x:self.video_box_x + self.video_box_width] = resized_frame
 
         elif self.currtab == 1:
-            '''
+            newresult = [[0] * 46 for _ in range(46)]
+            list = []
+            row = 0
+            col = 0
+            for i in range(len(result[0])):
+                list.append(result[0][i])
+                if (i+1) %57 == 0:
+                    newresult[row][col] = list
+                    row+=1
+                    if row > 45:
+                        row = 0
+                        col+=1
+                    list = []
+            array_2d = []
+            array_2d.append(newresult)
             cv2.rectangle(self.image, (self.video_box_x,self.video_box_y),(self.video_box_x+self.video_box_width,self.video_box_y+self.video_box_height),(0,0,0),2)
             indexlst = []
             Points = []
@@ -232,7 +244,7 @@ class GUI:
                 indexrow = []
                 for j in range(0,46):
                     list = []
-                    classifications = result[0][i][j]
+                    classifications = array_2d[0][i][j]
                     for k in range(0,57):
                         #float32_value = np.float32(classifications[k]) / 255.0
                         # if float32_value < 0:
@@ -243,8 +255,8 @@ class GUI:
                     classifications = [round(num, 2) for num in classifications]
                     #print(classifications)
                     indexrow.append(classifications.index(max(classifications)))
-                    newarr = np.array(classifications)
-                        #classifications = [round(num, 4) for num in classifications]
+                    #newarr = np.array(classifications)
+                    #classifications = [round(num, 4) for num in classifications]
                 indexlst.append(indexrow)
                     #print(classifications)
             for a in range(0,18):
@@ -254,11 +266,11 @@ class GUI:
                     for c in range(0,46):
                         if indexlst[b][c] == a:
                             #print(result[0][b][c][a])
-                            if result[0][b][c][a] > maxconfidence and result[0][b][c][a] >= self.threshold:
-                                maxconfidence = result[0][b][c][a]
+                            if array_2d[0][b][c][a] > maxconfidence and array_2d[0][b][c][a] >= self.threshold:
+                                maxconfidence = array_2d[0][b][c][a]
                                 coordinates = (b,c)
                 Points.append(coordinates)
-                '''
+                
             
             # Resize the frame to fit within the box dimensions
             resized_frame = cv2.resize(frame, (self.video_box_width, self.video_box_height))
@@ -269,20 +281,20 @@ class GUI:
             #         newx = pt[0]/46*self.video_box_width
             #         newy = pt[1]/46*self.video_box_width
             #         pt = (newx,newy) 
-            for i in range(len(result)):
-                if result[i][0] != -1:
+            for i in range(len(array_2d)):
+                if array_2d[i][0] != -1:
                     if str(i) in self.faceIndex:
                         # print(self.video_box_x+self.video_box_width-result[i][0])
                         # print(self.video_box_y+result[i][1])
                         #cv2.circle(self.image,(self.video_box_x+self.video_box_width-result[i][0],self.video_box_y+result[i][1]),10,(0,0,0),4)
-                        cv2.circle(self.image,(self.video_box_x+result[i][0],self.video_box_y+result[i][1]),10,self.POINT_COLORS[0],4)
+                        cv2.circle(self.image,(self.video_box_x+array_2d[i][0],self.video_box_y+array_2d[i][1]),10,self.POINT_COLORS[0],4)
                     else:
-                        cv2.circle(self.image,(self.video_box_x+result[i][0],self.video_box_y+result[i][1]),5,self.POINT_COLORS[i],4)
+                        cv2.circle(self.image,(self.video_box_x+array_2d[i][0],self.video_box_y+array_2d[i][1]),5,self.POINT_COLORS[i],4)
             for linept in self.LINE_POINTS:
                 startIndex = linept[0]
                 endIndex = linept[1]
-                startPt = result[startIndex]
-                endPt = result[endIndex]
+                startPt = array_2d[startIndex]
+                endPt = array_2d[endIndex]
                 if(startPt[0] != -1 and endPt[0] != -1):
                     cv2.line(self.image, (self.video_box_x+startPt[0],self.video_box_y+startPt[1]),(self.video_box_x+endPt[0],self.video_box_y+endPt[1]),self.COLOR_LINE,3)
             
@@ -307,6 +319,39 @@ class GUI:
         if key == ord('q'):
             return True
         return False
+    
+    def get_video_dimensions(video_path):
+        try:
+            # Open the video file
+            video = cv2.VideoCapture(video_path)
+
+            # Read the first frame
+            ret, frame = video.read()
+
+            # Get the dimensions of the frame
+            height, width, _ = frame.shape
+
+            return width, height
+
+        except Exception as e:
+            print("An error occurred: ", e)
+
+        finally:
+            # Release the video capture object
+            video.release()
+
+    def crop_frame(frame, target_width, target_height):
+        # Get the dimensions of the frame
+        height, width, _ = frame.shape
+
+        # Calculate the starting point for cropping
+        start_x = (width - target_width) // 2
+        start_y = (height - target_height) // 2
+
+        # Perform the cropping
+        cropped_frame = frame[start_y:start_y+target_height, start_x:start_x+target_width, :]
+
+        return cropped_frame
 
     
 
