@@ -1,7 +1,7 @@
 import sys
 import Fall_Detection
 # import GUI
-import Unit_Test
+import Single_Model
 import cv2
 import numpy as np
 
@@ -54,8 +54,8 @@ if __name__ == '__main__':
     modelidx, useVid, vid_path = 2, True, "./datasets/model1_vids/original/jess_IMG_0480.MOV"
     model = None
     if modelidx == 0: model = Fall_Detection.FallDet()
-    elif modelidx == 1: model = Unit_Test.SingleModel(model_paths[modelidx], [[1,368,368,3]], [[1,46,46,57]], np.uint8, np.uint8)
-    else: model = Unit_Test.SingleModel(model_paths[modelidx], [[1,300,300,3]], [[1,1917,21],[1,1917,4]], np.uint8, np.uint8)
+    elif modelidx == 1: model = Single_Model.SingleModel(model_paths[modelidx], [[1,368,368,3]], [[1,46,46,57]], np.uint8, np.uint8)
+    else: model = Single_Model.SingleModel(model_paths[modelidx], [[1,300,300,3]], [[1,1917,21],[1,1917,4]], np.uint8, np.uint8)
     
     if useVid:
         predictNRenderVid(model, vid_path)
