@@ -32,6 +32,7 @@ public:
     /* Functions */
     bp::list predict(np::ndarray data);
     const std::vector<std::vector<uint8_t>>& predict(uint8_t* byte_buffer);
+    void print_profiled_qos_data();
 
 private:
     std::string model_path;
@@ -40,6 +41,7 @@ private:
     void* runtime;
     void* handle;
     std::vector<std::vector<uint8_t>> output_buf;
+
     /* Should be called once per neuropl initialization. */
     void* load_func(void* handle, const char* func_name);
 
