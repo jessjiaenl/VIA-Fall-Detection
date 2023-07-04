@@ -94,22 +94,16 @@ Neuropl::Neuropl(std::string path)
     std::cout << "The required size of the input buffer is " << input_size
               << std::endl;
 
-    BufferAttribute attr { -1 };
-    // Set the output buffer
-    for (int i = 0; i < 10; i++) {
+    // Allocate output buffer
+    for (int i = 0; i < 8; i++) {
         size_t size;
         int fd = disable(stderr);
         err_code = (*getOutputSize)(runtime, i, &size);
+        restore(stderr, fd);
         if (err_code != NEURONRUNTIME_NO_ERROR) {
             break;
         }
         output_buf.push_back(std::vector<uint8_t>(size));
-        restore(stderr, fd);
-        err_code = (*setOutput)(
-            runtime, i, static_cast<void*>(output_buf[i].data()), size, attr);
-        if (err_code != NEURONRUNTIME_NO_ERROR) {
-            throw std::runtime_error("Failed to set single output for network.");
-        }
     }
 }
 
@@ -146,12 +140,24 @@ const std::vector<std::vector<uint8_t>>& Neuropl::predict(
     }
 
     int err_code;
+
     // Set the input buffer with our memory buffer (pixels inside)
-    BufferAttribute attr { -1 };
+    BufferAttribute attr {NON_ION_FD};
     err_code = (*setSingleInput)(runtime, static_cast<void*>(byte_buffer),
         input_size, attr);
     if (err_code != NEURONRUNTIME_NO_ERROR) {
         throw std::runtime_error("Failed to set single input for network.");
+    }
+
+    // Set output buffers
+    int i = 0;
+    for (auto& v : output_buf) {
+        err_code = (*setOutput)(runtime, i,
+                        static_cast<void*>(v.data()), v.size() * sizeof(uint8_t), attr);
+        if (err_code != NEURONRUNTIME_NO_ERROR) {
+           throw std::runtime_error("Failed to set output for network.");
+        }
+        i++;
     }
 
     // Do the inference with Neuron Runtime
@@ -160,12 +166,17 @@ const std::vector<std::vector<uint8_t>>& Neuropl::predict(
         throw std::runtime_error("Failed to inference the input.");
     }
 
+    return output_buf;
+}
+
+void Neuropl::print_profiled_qos_data()
+{
     // Get profiled QoS Data
     // Neuron Rutime would allocate ProfiledQoSData instance when the input
     // profiledQoSData is nullptr.
     ProfiledQoSData* profiledQoSData = nullptr;
     uint8_t executingBoostValue;
-    err_code = (*getProfiledQoSData)(runtime, &profiledQoSData, &executingBoostValue);
+    int err_code = (*getProfiledQoSData)(runtime, &profiledQoSData, &executingBoostValue);
     if (err_code != NEURONRUNTIME_NO_ERROR) {
         std::cerr << "Failed to Get QoS Data" << std::endl;
     }
@@ -189,8 +200,6 @@ const std::vector<std::vector<uint8_t>>& Neuropl::predict(
     } else {
         std::cerr << "profiledQoSData is nullptr" << std::endl;
     }
-
-    return output_buf;
 }
 
 bp::list Neuropl::predict(np::ndarray data)
@@ -233,5 +242,8 @@ BOOST_PYTHON_MODULE(neuropl)
 
     bp::list (Neuropl::*predict)(np::ndarray data) = &Neuropl::predict;
 
-    class_<Neuropl>("Neuropl", init<std::string>()).def("predict", predict);
+    class_<Neuropl>("Neuropl", init<std::string>())
+        .def("predict", predict)
+        .def("print_profiled_qos_data", &Neuropl::print_profiled_qos_data)
+        ;
 }
