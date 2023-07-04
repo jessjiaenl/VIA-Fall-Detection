@@ -135,6 +135,11 @@ public class PoseDetector {
         interpreter.run(imgData, outputArrayByte);
         long endTime = SystemClock.uptimeMillis();
 
+
+        
+
+
+
         float maxConfidence = 0F;
         for (int i = 0; i < FINAL_OUTPUT_DIM_NUM; i++) {
             maxConfidence = 0F;
