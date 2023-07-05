@@ -31,7 +31,7 @@ class FallDet:
     frame = None
     frame_rgb = None
 
-    threshold = 0.88
+    threshold = 200
 
     def __init__(self):
         
@@ -99,5 +99,6 @@ class FallDet:
     def predictVid(self): #  main doesn't call this function
         model2_in = np.array(self.probs).reshape((1, 16))
         vid_preds = self.model2.predict(model2_in)[0] # uint8 1x1
+        vid_preds = vid_preds*255
         return (vid_preds.reshape((1, len(vid_preds))) > self.threshold) # [[bool]]
         # return vid_preds.reshape((1, len(vid_preds)))

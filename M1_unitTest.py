@@ -53,16 +53,9 @@ if __name__ == "__main__":
     output_index = output[0]['index']
     input_index = input[0]['index']
 
-
     input_shape = [1,224,224,3]
     output_shape = [1,2]
     input_type = np.uint8
 
-    probs = []
-    frame = None
-    frame_rgb = None
-
-    threshold = 0.88
-
-    predictNRenderVid(interpreter, "./datasets/model1_vids/original/jess_IMG_0480.MOV", 
+    predictNRenderVid(interpreter, "./datasets/model2_vids/original/s-walk1.mp4", 
                     input_shape, input_type, input_index, output_index)
