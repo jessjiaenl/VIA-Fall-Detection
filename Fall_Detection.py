@@ -1,6 +1,6 @@
 import numpy as np
 
-# import tensorflow as tf
+import tensorflow as tf
 # assert tf.__version__.startswith('2')
 
 # from tensorflow.keras.callbacks import TensorBoard
@@ -10,7 +10,7 @@ import cv2
 
 import sys
 sys.path.append("./compiler_and_runtime/Neuropl")
-import neuropl
+# import neuropl
 
 class FallDet:
     interpreter = None
@@ -34,7 +34,7 @@ class FallDet:
     threshold = 0.88
 
     def __init__(self):
-        '''
+        
         # initialize tensor for model1
         self.interpreter = tf.lite.Interpreter(model_path="./tflite_models/model.tflite")
         self.interpreter.allocate_tensors()
@@ -48,7 +48,8 @@ class FallDet:
         # using neuropl API
         self.model1 = neuropl.Neuropl("model1.dla") # model1 in: uint8 (1x224x224x3) out: uint8 (1x2)
         self.model2 = neuropl.Neuropl("model2.dla") # model2 in: uint8 (1x16) out: uint8 (1x1)
-        
+        '''
+
     def cropFrameToSquare(self, frame):
         h, w, _ = frame.shape
         target_len = min(h,w)
@@ -64,7 +65,7 @@ class FallDet:
         # match model input type
         frame_rgb = frame_rgb.astype(self.input_type)
 
-        '''
+        
         # predict using interpreter
         self.interpreter.set_tensor(self.input_index, frame_rgb)
         self.interpreter.invoke()
@@ -74,6 +75,7 @@ class FallDet:
         '''
         # predict using neuropl
         output_data = self.model1.predict(frame_rgb)[0] # API outputs [[movingprob, stillprob]]
+        '''
 
         # below remains the same regardless of neuropl API usage
         # output_probs = tf.nn.softmax(output_data.astype(float)) # use tf
@@ -85,7 +87,7 @@ class FallDet:
         # prob = np.around(max(output_probs.numpy()), decimals = 2) # use tf
         prob = np.around(max(output_probs), decimals = 2) # without tf
         if predicted_class == "Still": self.probs += [1-prob]
-        else: self.probs += [1-prob]        
+        else: self.probs += [prob]        
 
         result = False # default = not falling
         if len(self.probs) == 16:
