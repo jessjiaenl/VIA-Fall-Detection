@@ -100,3 +100,4 @@ class FallDet:
         model2_in = np.array(self.probs).reshape((1, 16))
         vid_preds = self.model2.predict(model2_in)[0] # uint8 1x1
         return (vid_preds.reshape((1, len(vid_preds))) > self.threshold) # [[bool]]
+        # return vid_preds.reshape((1, len(vid_preds)))
