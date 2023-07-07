@@ -25,7 +25,7 @@ class FallDet:
     prev_frame_gray = None
     is_first_frame = True
 
-    threshold = 254.98
+    threshold = 25.5
 
     def __init__(self):
         # load model2
