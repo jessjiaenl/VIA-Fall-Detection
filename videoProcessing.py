@@ -18,7 +18,7 @@ def calculate_frame_difference(video_path):
 
     # Check if the video opened successfully
     if not success:
-        print("Video not opened successfully :(")
+        print("Video not opened successfully :( " + x)
         return
 
     # Convert the frame to grayscale
@@ -59,10 +59,10 @@ def calculate_frame_difference(video_path):
 
 
 # Path to your video files
-falling_paths = ["./datasets/model1_data_new/Fall/k_fall_ground_cut.mp4",
-                 "./datasets/model1_data_new/Fall/k_fall_lobby_cut.mp4",
-                 "./datasets/model1_data_new/Fall/k_fall_street_cut.mp4",
-                 "./datasets/model1_data_new/Fall/k_fall_streetwithtrees_cut.mp4",
+falling_paths = [
+                 "./datasets/model1_data_new/Fall/resizedk_fall_lobby_cut.mp4",
+                 "./datasets/model1_data_new/Fall/resizedk_fall_street_cut.mp4",
+                 "./datasets/model1_data_new/Fall/resizedk_fall_streetwithtrees_cut.mp4",
                  "./datasets/model1_data_new/Fall/resized_IMG0480_falling.mp4",
                  "./datasets/model1_data_new/Fall/resized_IMG0484_falling.mp4",
                  "./datasets/model1_data_new/Fall/resized_IMG0485_falling.mp4",
@@ -74,17 +74,17 @@ falling_paths = ["./datasets/model1_data_new/Fall/k_fall_ground_cut.mp4",
                  "./datasets/model1_data_new/Fall/resized_vid2_falling.mp4",
                  "./datasets/model1_data_new/Fall/resized_vid4_falling.mp4",
                  "./datasets/model1_data_new/Fall/s-resized_s-fall2.mp4",
-                 "./datasets/model1_data_new/Fall/s-fall3.mp4",
-                 "./datasets/model1_data_new/Fall/s-fall4.mp4",
-                 "./datasets/model1_data_new/Fall/s-fall5.mp4"]
+                 "./datasets/model1_data_new/Fall/resizeds-fall3.mp4",
+                 "./datasets/model1_data_new/Fall/resizeds-fall4.mp4",
+                 "./datasets/model1_data_new/Fall/resizeds-fall5.mp4"]
 
 default_paths = [
-                 "./datasets/model1_data_new/Still/k-still1.mp4",
-                 "./datasets/model1_data_new/Still/k-still2.mp4",
+                 "./datasets/model1_data_new/Still/resizedk-still1.mp4",
+                 "./datasets/model1_data_new/Still/resizedk-still2.mp4",
                  "./datasets/model1_data_new/Still/resized_s-still1.mp4",
-                 "./datasets/model1_data_new/Still/s-still2.mp4",
-                 "./datasets/model1_data_new/Still/s-still3.mp4",
-                 "./datasets/model1_data_new/Still/s-still4.mp4"]
+                 "./datasets/model1_data_new/Still/resizeds-still2.mp4",
+                 "./datasets/model1_data_new/Still/resizeds-still3.mp4",
+                 "./datasets/model1_data_new/Still/resizeds-still4.mp4"]
 
 video_paths = falling_paths + default_paths
 concatenated_diff = None
@@ -101,7 +101,7 @@ for x in video_paths:
         concatenated_diff = np.concatenate((concatenated_diff, frame_diff_array))
 
 # for falling vids
-for x in default_paths:
+for x in falling_paths:
     frame_diff_array = calculate_frame_difference(x)
     arr_of_diffs.append(frame_diff_array)
 
