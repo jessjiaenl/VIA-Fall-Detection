@@ -32,7 +32,7 @@ if __name__ == '__main__':
   '''
   model_paths = ["", "./tflite_models/openpose_mobilenetv0.75_quant_1x368x368x3.tflite", "./tflite_models/mobilenet_ssd_pascal_quant.tflite"]
   # modelidx, useVid, vid_path = sys.argv
-  modelidx, useVid, vid_path = 0, True, "fallAndGetUp.MOV" # "./datasets/model1_vids/original/jess_IMG_0480.MOV" # "./datasets/model2_vids/original/s-walk1.mp4"
+  modelidx, useVid, vid_path = 0, True, "./datasets/model1_data_new/Still/resized_s-still1.mp4" # "./datasets/model1_vids/original/jess_IMG_0480.MOV" # "./datasets/model2_vids/original/s-walk1.mp4"
   model = None
   if modelidx == 0: model = Fall_Detection.FallDet()
   elif modelidx == 1: model = Single_Model.SingleModel(model_paths[modelidx], [[1,368,368,3]], [[1,46,46,57]], np.uint8, np.uint8)

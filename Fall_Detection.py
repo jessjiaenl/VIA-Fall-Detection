@@ -25,7 +25,7 @@ class FallDet:
     prev_frame_gray = None
     is_first_frame = True
 
-    threshold = 100
+    threshold = 254.98
 
     def __init__(self):
         # load model2
@@ -66,8 +66,9 @@ class FallDet:
         return result
     
     def predictVid(self): #  main doesn't call this function
-        model2_in = np.array(self.diffs).reshape((1, 16))
+        model2_in = np.array(self.diffs).reshape((1, 16)) / 255
+        print(model2_in)
         vid_preds = self.model2.predict(model2_in) # dtype=uint8 (1,1)
         vid_preds = vid_preds*255 # quantize
-        # return (vid_preds > self.threshold) # [[bool]]
-        return vid_preds
+        return (vid_preds > self.threshold) # [[bool]]
+        # return vid_preds
