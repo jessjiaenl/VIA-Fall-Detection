@@ -73,23 +73,18 @@ falling_paths = ["./datasets/model1_data_new/Fall/k_fall_ground_cut.mp4",
                  "./datasets/model1_data_new/Fall/resized_vid1_falling.mp4",
                  "./datasets/model1_data_new/Fall/resized_vid2_falling.mp4",
                  "./datasets/model1_data_new/Fall/resized_vid4_falling.mp4",
-                 "./datasets/model1_data_new/Fall/s-resized_s-fall2.mp4"]
+                 "./datasets/model1_data_new/Fall/s-resized_s-fall2.mp4",
+                 "./datasets/model1_data_new/Fall/s-fall3.mp4",
+                 "./datasets/model1_data_new/Fall/s-fall4.mp4",
+                 "./datasets/model1_data_new/Fall/s-fall5.mp4"]
 
-default_paths = ["./datasets/model1_data_new/Default/k_run_ground.mp4",
-                 "./datasets/model1_data_new/Default/k_run_street.mp4",
-                 "./datasets/model1_data_new/Default/k_run_streetwithtrees.mp4",
-                 "./datasets/model1_data_new/Default/k_still_starbucks.mp4",
-                 "./datasets/model1_data_new/Default/k_still_streetwithtrees.mp4",
-                 "./datasets/model1_data_new/Default/k_walk_ground.mp4",
-                 "./datasets/model1_data_new/Default/k_walk_lobby.mp4",
-                 "./datasets/model1_data_new/Default/k_walk_street.mp4",
-                 "./datasets/model1_data_new/Default/k_walk_streetwithtrees.mp4",
-                 "./datasets/model1_data_new/Default/resized_s-run5.mp4",
-                 "./datasets/model1_data_new/Default/resized_s-run7.mp4",
-                 "./datasets/model1_data_new/Default/resized_s-walk5.mp4",
-                 "./datasets/model1_data_new/Default/resized_vid2_default.mp4",
-                 "./datasets/model1_data_new/Default/resized_vid4_default.mp4",
-                 "./datasets/model1_data_new/Default/resized-s-walk1.mp4"]
+default_paths = [
+                 "./datasets/model1_data_new/Still/k-still1.mp4",
+                 "./datasets/model1_data_new/Still/k-still2.mp4",
+                 "./datasets/model1_data_new/Still/resized_s-still1.mp4",
+                 "./datasets/model1_data_new/Still/s-still2.mp4",
+                 "./datasets/model1_data_new/Still/s-still3.mp4",
+                 "./datasets/model1_data_new/Still/s-still4.mp4"]
 
 video_paths = falling_paths + default_paths
 concatenated_diff = None
@@ -106,7 +101,7 @@ for x in video_paths:
         concatenated_diff = np.concatenate((concatenated_diff, frame_diff_array))
 
 # for falling vids
-for x in falling_paths:
+for x in default_paths:
     frame_diff_array = calculate_frame_difference(x)
     arr_of_diffs.append(frame_diff_array)
 
