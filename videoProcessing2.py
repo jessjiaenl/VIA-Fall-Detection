@@ -132,7 +132,7 @@ for x in arr_of_diffs:
     normalized_array.append(norm)
 
 # Print normalized differences of differences
-for elem in norm_fall:
+for elem in norm_default:
     # Iterate through the array with a sliding window
     for i in range(len(elem) - 16+1):
         window =elem[i: i+16]
@@ -143,10 +143,3 @@ for elem in norm_fall:
 #normalize the concatenated array
 # concatenated_norm = (concatenated_diff - np.min(concatenated_diff)) / (np.max(concatenated_diff) - np.min(concatenated_diff))
 
-# Get concatenated array of differences of differences
-# for x in normalized_array:
-#     frame_diff_array = calculate_diff_from_array(x)
-#     if concatenated_diff2 is None:
-#         concatenated_diff2 = frame_diff_array
-#     else:
-#         concatenated_diff2 = np.concatenate((concatenated_diff, frame_diff_array))
