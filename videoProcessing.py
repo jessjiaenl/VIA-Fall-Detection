@@ -109,8 +109,8 @@ for x in falling_paths:
 #     print(elem)
 
 # normalized_frame_diff = normalize_frame_differences(frame_diff_array)
-# print(np.min(concatenated_diff))
-# print(np.max(concatenated_diff))
+print(np.min(concatenated_diff))
+print(np.max(concatenated_diff))
 
 # Normalize the array
 for x in arr_of_diffs:
@@ -122,10 +122,10 @@ for x in arr_of_diffs:
 #     print(elem)
 #     print("\n")
 
-for elem in normalized_array:
-    # Iterate through the array with a sliding window
-    for i in range(len(elem) - 16+1):
-        window =elem[i: i+16]
-        for x in window:
-            print(x, end=" ")
-        print("")
+# for elem in normalized_array:
+#     # Iterate through the array with a sliding window
+#     for i in range(len(elem) - 16+1):
+#         window =elem[i: i+16]
+#         for x in window:
+#             print(x, end=" ")
+#         print("")
