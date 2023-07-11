@@ -32,11 +32,10 @@ def calculate_frame_difference(video_path):
             break
 
         # Convert the frame to grayscale
-        curr_frame_gray = cv2.cvtColor(curr_frame, cv2.COLOR_BGR2GRAY)
+        curr_frame_gray = cv2.cvtColor(curr_frame, cv2.COLOR_BGR2GRAY).astype(np.int16)
         # Calculate the absolute difference between frames
-        frame_diff = cv2.absdiff(prev_frame_gray, curr_frame_gray)
-        # Cast as a signed 16 bit int
-        frame_diff = frame_diff.astype(np.int16)
+        prev_frame_gray = prev_frame_gray.astype(np.int16)
+        frame_diff = prev_frame_gray - curr_frame_gray
 
         if first is True:
             prev_diff = frame_diff
@@ -137,8 +136,9 @@ for elem in norm_default:
     for i in range(len(elem) - 16+1):
         window =elem[i: i+16]
         for x in window:
-            print(x, end=" ")
-        print("")
+            continue
+            # print(x, end=" ")
+        # print("")
 
 #normalize the concatenated array
 # concatenated_norm = (concatenated_diff - np.min(concatenated_diff)) / (np.max(concatenated_diff) - np.min(concatenated_diff))
