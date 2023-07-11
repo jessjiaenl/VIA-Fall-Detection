@@ -57,7 +57,7 @@ class FallDet:
             self.is_second_frame = False
         frame_diff = curr_frame_gray - self.prev_frame_gray
         diffdiff = frame_diff - self.prev_diff
-        frame_avg_diff = np.sum(np.abs(frame_diff)) / (self.img_shape[0]*self.img_shape[1])
+        frame_avg_diff = np.sum(np.abs(diffdiff)) / (self.img_shape[0]*self.img_shape[1])
         # match model input type
         frame_avg_diff = frame_avg_diff.astype(self.input_type)
         # print(frame_avg_diff)
