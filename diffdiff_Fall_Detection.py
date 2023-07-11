@@ -64,7 +64,8 @@ class FallDet:
 
 
         self.diffs.append(frame_avg_diff)
-        self.prev_frame_gray = curr_frame_gray 
+        self.prev_frame_gray = curr_frame_gray
+        self.prev_diff = frame_diff
 
         result = False # default = not falling
         if len(self.diffs) == 16:
