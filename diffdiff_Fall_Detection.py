@@ -52,7 +52,6 @@ class FallDet:
             self.prev_diff = curr_frame_gray - self.prev_frame_gray
             self.is_first_frame = False
         elif self.is_second_frame:
-            self.prev_frame_gray = curr_frame_gray
             self.prev_diff = curr_frame_gray - self.prev_frame_gray
             self.is_second_frame = False
         frame_diff = curr_frame_gray - self.prev_frame_gray
