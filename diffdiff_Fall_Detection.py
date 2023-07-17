@@ -30,7 +30,7 @@ class FallDet:
 
     def __init__(self):
         # load model2
-        self.model2 = tf.keras.models.load_model("new_model2")
+        self.model2 = tf.keras.models.load_model("diff_m2")
         '''
         # using neuropl API
         self.model2 = neuropl.Neuropl("model2.dla") # model2 in: uint8 (1x16) out: uint8 (1x1)

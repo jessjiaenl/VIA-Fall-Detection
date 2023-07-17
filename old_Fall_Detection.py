@@ -36,7 +36,7 @@ class FallDet:
     def __init__(self):
         
         # initialize tensor for model1
-        self.interpreter = tf.lite.Interpreter(model_path="model1_new.tflite") # "./tflite_models/model.tflite"
+        self.interpreter = tf.lite.Interpreter(model_path="./tflite_models/new_m1.tflite") # "./tflite_models/model.tflite"
         self.interpreter.allocate_tensors()
         output = self.interpreter.get_output_details()
         input = self.interpreter.get_input_details()
