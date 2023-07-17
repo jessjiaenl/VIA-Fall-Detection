@@ -36,14 +36,14 @@ class FallDet:
     def __init__(self):
         
         # initialize tensor for model1
-        self.interpreter = tf.lite.Interpreter(model_path="./tflite_models/model.tflite")
+        self.interpreter = tf.lite.Interpreter(model_path="model1_new.tflite") # "./tflite_models/model.tflite"
         self.interpreter.allocate_tensors()
         output = self.interpreter.get_output_details()
         input = self.interpreter.get_input_details()
         self.output_index = output[0]['index']
         self.input_index = input[0]['index']
         # load model2
-        self.model2 = tf.keras.models.load_model("model2")
+        self.model2 = tf.keras.models.load_model("model2_new")
         '''
         # using neuropl API
         self.model1 = neuropl.Neuropl("model1.dla") # model1 in: uint8 (1x224x224x3) out: uint8 (1x2)
