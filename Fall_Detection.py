@@ -67,7 +67,7 @@ class FallDet:
     
     def predictVid(self): #  main doesn't call this function
         model2_in = np.array(self.diffs).reshape((1, 16)) / 255
-        print(model2_in)
+        # print(model2_in)
         vid_preds = self.model2.predict(model2_in) # dtype=uint8 (1,1)
         vid_preds = vid_preds*255 # quantize
         return (vid_preds > self.threshold) # [[bool]]
