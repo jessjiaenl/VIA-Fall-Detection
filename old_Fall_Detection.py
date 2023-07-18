@@ -28,8 +28,6 @@ class FallDet:
     input_type = np.uint8
 
     probs = []
-    frame = None
-    frame_rgb = None
 
     threshold = 200
 
@@ -49,6 +47,7 @@ class FallDet:
         self.model1 = neuropl.Neuropl("model1.dla") # model1 in: uint8 (1x224x224x3) out: uint8 (1x2)
         self.model2 = neuropl.Neuropl("model2.dla") # model2 in: uint8 (1x16) out: uint8 (1x1)
         '''
+        self.probs = []
 
     def cropFrameToSquare(self, frame):
         h, w, _ = frame.shape

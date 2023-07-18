@@ -35,6 +35,10 @@ class FallDet:
         # using neuropl API
         self.model2 = neuropl.Neuropl("model2.dla") # model2 in: uint8 (1x16) out: uint8 (1x1)
         '''
+        self.diffs = []
+        self.prev_diff = None
+        self.prev_frame_gray = None
+        self.is_first_frame, self.is_second_frame = True, True
 
     def cropFrameToSquare(self, frame):
         h, w, _ = frame.shape
