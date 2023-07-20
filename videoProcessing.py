@@ -59,6 +59,7 @@ def calculate_frame_difference(video_path):
 
 
 # Path to your video files
+''' Old videos
 falling_paths = [
                  "./datasets/model1_data_new/Fall/resizedk_fall_lobby_cut.mp4",
                  "./datasets/model1_data_new/Fall/resizedk_fall_street_cut.mp4",
@@ -85,6 +86,44 @@ default_paths = [
                  "./datasets/model1_data_new/Still/resizeds-still2.mp4",
                  "./datasets/model1_data_new/Still/resizeds-still3.mp4",
                  "./datasets/model1_data_new/Still/resizeds-still4.mp4"]
+'''
+
+falling_paths = [
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall1.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall2.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall3.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall4.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall5.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall6.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall7.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall8.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall9.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall10.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall11.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall12.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall13.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall14.mp4",
+                 "./datasets/vids/splitted/new_moving/resized_logitech-fall15.mp4"
+                 ]
+
+default_paths = [
+                 "./datasets/vids/splitted/new_still/resized_logitech-default1.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default2.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default3.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default4.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default5.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default6.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default7.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default8.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default9.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default10.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default11.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default12.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default13.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default14.mp4",
+                 "./datasets/vids/splitted/new_still/resized_logitech-default15.mp4"
+                 ]
+
 
 video_paths = falling_paths + default_paths
 concatenated_diff = None
@@ -109,8 +148,8 @@ for x in falling_paths:
 #     print(elem)
 
 # normalized_frame_diff = normalize_frame_differences(frame_diff_array)
-print(np.min(concatenated_diff))
-print(np.max(concatenated_diff))
+# print(np.min(concatenated_diff))
+# print(np.max(concatenated_diff))
 
 # Normalize the array
 for x in arr_of_diffs:
@@ -122,10 +161,10 @@ for x in arr_of_diffs:
 #     print(elem)
 #     print("\n")
 
-# for elem in normalized_array:
-#     # Iterate through the array with a sliding window
-#     for i in range(len(elem) - 16+1):
-#         window =elem[i: i+16]
-#         for x in window:
-#             print(x, end=" ")
-#         print("")
+for elem in normalized_array:
+    # Iterate through the array with a sliding window
+    for i in range(len(elem) - 8+1):
+        window =elem[i: i+8]
+        for x in window:
+            print(x, end=" ")
+        print("")
