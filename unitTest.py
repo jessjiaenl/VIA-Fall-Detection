@@ -1,6 +1,7 @@
 import sys
 import Fall_Detection
 import diffdiff_Fall_Detection
+import eight_Fall_Detection
 import old_Fall_Detection
 import Single_Model
 import cv2
@@ -36,7 +37,7 @@ if __name__ == '__main__':
   # modelidx, useVid, vid_path = sys.argv
   modelidx, useVid, vid_path = 0, True, "./still_fall.mp4" # "./datasets/model1_vids/original/jess_IMG_0480.MOV" # "./datasets/model2_vids/original/s-walk1.mp4"
   model = None
-  if modelidx == 0: model = diffdiff_Fall_Detection.FallDet()
+  if modelidx == 0: model = eight_Fall_Detection.FallDet()
   elif modelidx == 1: model = Single_Model.SingleModel(model_paths[modelidx], [[1,368,368,3]], [[1,46,46,57]], np.uint8, np.uint8)
   else: model = Single_Model.SingleModel(model_paths[modelidx], [[1,300,300,3]], [[1,1917,21],[1,1917,4]], np.uint8, np.uint8)
 
