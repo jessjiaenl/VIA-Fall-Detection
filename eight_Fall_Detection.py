@@ -23,13 +23,16 @@ class FallDet:
     # hard coded parameters for fall detection
     model1_input_shape = [1,224,224,3] 
     model1_output_shape = [1,2]
-    model2_input_shape = [1,16]
+    model2_input_shape = [1,8]
     model2_output_shape = [1,1]
     input_type = np.uint8
 
     probs = []
 
     threshold = 200
+
+    prev_frame_gray = None
+    is_first_frame = True
 
     def __init__(self):
         
@@ -48,6 +51,9 @@ class FallDet:
         self.model2 = neuropl.Neuropl("model2.dla") # model2 in: uint8 (1x16) out: uint8 (1x1)
         '''
         self.probs = []
+        self.prev_frame_gray = None
+        self.is_first_frame = True
+        diff_threshold = 0.2
 
     def cropFrameToSquare(self, frame):
         h, w, _ = frame.shape
@@ -63,6 +69,14 @@ class FallDet:
         frame_rgb = np.expand_dims(frame_rgb, axis=0) # resize to match tensor size [224x224x3] -> [1x224x224x3]
         # match model input type
         frame_rgb = frame_rgb.astype(self.input_type)
+
+        # for extra filter
+        curr_frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        if self.is_first_frame:
+            self.prev_frame_gray = curr_frame_gray
+            self.is_first_frame = False
+        frame_diff = cv2.absdiff(self.prev_frame_gray, curr_frame_gray)
+        frame_avg_diff = np.sum(frame_diff) / (self.model1_input_shape[1]*self.model1_input_shape[2])
 
         
         # predict using interpreter
@@ -86,7 +100,8 @@ class FallDet:
         # prob = np.around(max(output_probs.numpy()), decimals = 2) # use tf
         prob = np.around(max(output_probs), decimals = 2) # without tf
         if predicted_class == "Still": self.probs += [1-prob]
-        else: self.probs += [prob]        
+        elif frame_avg_diff < self.diff_threshold: self.probs += [1-prob] # small value
+        else: self.probs += [prob]
 
         result = False # default = not falling
         if len(self.probs) == 8:
