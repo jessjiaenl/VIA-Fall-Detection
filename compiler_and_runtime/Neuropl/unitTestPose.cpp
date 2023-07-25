@@ -1,30 +1,25 @@
-#include "neuropl.cpp"
-#include <opencv2/core.hpp>
-#include <opencv2/videoio.hpp>
-#include <opencv2/highgui.hpp>
+#include "neuropl/neuropl.h"
+#include <opencv2/opencv.hpp>
 #include <stdio.h>
 #include <iostream>
-#include <opencv2/opencv.hpp>
-#include <opencv2/imgproc.hpp>
 
 using namespace cv;
 using namespace std;
 
+const int WIDTH = 368, HEIGHT = 368; // model input img size
 
 /* global variables needed for rendering */
-const int SCREEN_SIZE = 1000;
+const int SCREEN_SIZE = 500;
 const double STRIKE_WIDTH_TEXT = 8.0;
 const double STRIKE_WIDTH_LINE = 3.0;
 const int TOTAL_POINTS = 18;
-//format a r g b, each is 8 bits
-const int COLOR_HEAD = 0xB40000FF; 
-const int COLOR_BODY = 0xB4FFFF00;
-const int COLOR_FOOT = 0xB400FF00;
-const int COLOR_BACKGROUND = 0xB4FFFFFF;
-const int COLOR_LINE = 0xB4888888;
-const int COLOR_TEXT = 0xB4FF0000;
+// BGR
+const  Scalar COLOR_HEAD(66, 206, 245);
+const  Scalar COLOR_BODY(45, 224, 117);
+const  Scalar COLOR_FOOT(224, 45, 140);
+const  Scalar COLOR_LINE(71, 78, 255);
 
-const vector<int> POINT_COLORS = {
+const vector<Scalar> POINT_COLORS = {
     COLOR_HEAD,   // 0. nose
     COLOR_BODY,   // 1. neck
     COLOR_BODY,   // 2. R shoulder
@@ -43,7 +38,6 @@ const vector<int> POINT_COLORS = {
     COLOR_HEAD,   // 15. L eye
     COLOR_HEAD,   // 16. R ear
     COLOR_HEAD,   // 17. L ear
-    COLOR_BACKGROUND  // 18. background
 };
 
 const vector<tuple<int, int>> LINE_POINTS = {
@@ -67,68 +61,61 @@ const vector<tuple<int, int>> LINE_POINTS = {
 };
 
 vector<string> faceIndex = {"0", "14", "15", "16", "17"};
-vector<tuple<int,int>> points;
+vector<tuple<double,double>> points;
 Mat canvas;
 /* end of global vars */
 
-// initialize canvas
-void renderPose(Mat image){
-    canvas = Mat(Size(SCREEN_SIZE,SCREEN_SIZE), CV_8UC3, Scalar(255, 255, 255));
+/* initialize canvas */
+void initCanvas(Mat image){
+    canvas = image;
     points.resize(TOTAL_POINTS);
 }
 
-/* Record latest data, which will be shown in the next call of onDraw(). */
-void track(vector<tuple<int,int>> nodePosition, int w, int h) {
-        for (int i = 0; i < TOTAL_POINTS; ++i) {
-            if (i < nodePosition.size() && get<0>(nodePosition[i]) >= 0) {
-                // Resize output based on size of the view.
-                //need to get DIM_OUTPUT_W of PoseDetector and width of the screen
-                //need to get DIM_OUTPUT_W of PoseDetector and width of the screen
-                int DIM_OUTPUT_W = w, DIM_OUTPUT_H = h;
-                int width = SCREEN_SIZE, height = SCREEN_SIZE;
-                points[i] = make_tuple(get<0>(nodePosition[i])/ DIM_OUTPUT_W * width, get<1>(nodePosition[i]) / DIM_OUTPUT_H * height);
-            } else {
-                points[i] = make_tuple(-1, -1); //-1 is used as a placeholder for NULL
-            }
-        }
-    }
-
-void drawPose(const vector<tuple<int, int>>& points, Mat& canvas) {
-    // Draw points.
+/* record latest data, which will be shown in the next call of drawPose(). */
+void track(vector<tuple<double,double>> nodePosition, int w, int h) {
     for (int i = 0; i < TOTAL_POINTS; ++i) {
-        tuple<int, int> point = points[i];
-        if (get<0>(point) >= 0 && get<1>(point) >= 0) {
-            int color = POINT_COLORS[i];
-            bool isFacePoint = find(faceIndex.begin(), faceIndex.end(), to_string(i)) != faceIndex.end();
-            //convert tuple into cv::point
-            Point p = Point(get<0>(point), get<1>(point));
-            circle(canvas, p, (isFacePoint ? 8 : 12), color, FILLED);
-            int textColor = COLOR_TEXT;
-            float textSize = isFacePoint ? 20.0f : 30.0f;
-            putText(canvas, to_string(i), p, FONT_HERSHEY_SIMPLEX, textSize, textColor, 2);
+        if (i < nodePosition.size() && get<0>(nodePosition[i]) >= 0) {
+            // Resize output based on size of the view.
+            points[i] = make_tuple(get<0>(nodePosition[i])/ 46 * WIDTH, get<1>(nodePosition[i]) / 46 * HEIGHT);
+        } else {
+            // use -1 as the placeholder for NULL
+            points[i] = make_tuple(-1, -1);
         }
     }
-
-    // Draw lines.
-    for (const auto& linePoint : LINE_POINTS) {
-        int startIndex = get<0>(linePoint);
-        int endIndex =  get<1>(linePoint);
-        tuple<int, int> startPoint = points[startIndex];
-        tuple<int, int> endPoint = points[endIndex];
-        if ( get<0>(startPoint) >= 0 &&  get<1>(startPoint) >= 0 &&  get<0>(endPoint) >= 0 && get<1>(endPoint) >= 0) {
-            //convert tuple to point
-            Point start = Point(get<0>(startPoint), get<1>(startPoint));
-            Point end = Point(get<0>(endPoint), get<1>(endPoint));
-            line(canvas, start, end, COLOR_LINE, STRIKE_WIDTH_LINE);
-        }
-    }
-    imshow("Image", canvas);
-    //Wait for a keyboard event and handle it:
-    waitKey(0);
-    //Destroy the window and release resources:
-    destroyWindow("Image");
 }
 
+/* draw points and lines */
+void drawPose(const vector<tuple<double, double>>& points, Mat& canvas, Mat& img, string windowName) {
+    /* draw points */
+    for (int i = 0; i < TOTAL_POINTS; ++i) {
+        tuple<double, double> point = points[i];
+        if (get<0>(point) != -1){
+            bool isFacePoint = find(faceIndex.begin(), faceIndex.end(), to_string(i)) != faceIndex.end();
+            int x = get<0>(point), y = get<1>(point);
+            Point p = Point(x, y); // tuple to point
+            printf("x = %d, y = %d\n", x, y);
+            circle(canvas, p, (isFacePoint ? 4 : 6), (isFacePoint ? POINT_COLORS[0] : POINT_COLORS[i]), 3); // draw point
+        }
+    }
+
+    /* draw lines */
+    for (const auto& linePoint : LINE_POINTS) {
+        int startIndex = get<0>(linePoint), endIndex = get<1>(linePoint);
+        tuple<int, int> startPoint = points[startIndex], endPoint = points[endIndex];
+        if (get<0>(startPoint) != -1 && get<0>(endPoint) != -1) {
+            Point start = Point(get<0>(startPoint), get<1>(startPoint)); // tuple to point
+            Point end = Point(get<0>(endPoint), get<1>(endPoint)); // tuple to point
+            line(canvas, start, end, COLOR_LINE, STRIKE_WIDTH_LINE); // draw line
+        }
+    }
+    
+    /* display */
+    imshow("Image", canvas); 
+    waitKey(0); // wait for a keyboard event
+    destroyWindow("Image"); // then destroy the window and release resources
+}
+
+/* print raw predict results (vector of vector) */
 void printRawResult(auto& result){
     for (auto output : result) {
             for (auto item : output) {
@@ -138,6 +125,17 @@ void printRawResult(auto& result){
         }
 }
 
+/* crop and resize the image to model's input size */
+void cropNResize(Mat& img, Mat& result, int frame_w, int frame_h){
+    auto w = img.size[1], h = img.size[0]; // type int
+    auto target_len = min(w, h);
+    auto start_x = (w-target_len)/2, start_y = (h-target_len)/2;
+    Mat cropped = img(Range(start_y, start_y+target_len), Range(start_x, start_x+target_len));
+    Mat resized;
+    resize(cropped, result, Size(frame_w, frame_h));
+}
+
+/* reshape result from 1d vector to 4d vector (1x46x46x57) */
 vector<vector<vector<vector<uint8_t>>>> reshapeResult(vector<uint8_t>& output, vector<int>& outputSize){
     vector<vector<vector<vector<uint8_t>>>> result; // 4 dim vector with shape [1,46,46,57]
     uint8_t inner_cnt = 0, mid_cnt = 0, outer_cnt = 0;
@@ -169,67 +167,58 @@ vector<vector<vector<vector<uint8_t>>>> reshapeResult(vector<uint8_t>& output, v
     return result;
 }
 
-int main(void){
-    namedWindow("Image");
-    // edit model & test parameters here:
-    string model_path = "./../openpose_mobilenetv0.75_quant_1x368x368x3.dla";
-    vector<int> outputSize = {1,46,46,57};
-    int frame_w = 368, frame_h = 368;
-    string test_img_path = "./../yuzuru.jpg";
-    float OUTPUT_RATIO = 0.008926701731979847;
-    float OUTPUT_BIAS = 126;
-    float THRESHOLD_CONFIDENCE = 0.2/(OUTPUT_RATIO+OUTPUT_BIAS);
-
-    // initialize objects
-    Neuropl model {model_path};
-    Mat img = imread(test_img_path);
-    renderPose(img); // init render
-
-    // crop and resize img
-    auto w = img.size[1], h = img.size[0]; // type int
-    auto target_len = min(w, h);
-    auto start_x = (w-target_len)/2, start_y = (h-target_len)/2;
-    Mat cropped = img(Range(start_y, start_y+target_len), Range(start_x, start_x+target_len));
-    Mat resized;
-    resize(cropped, resized, Size(frame_w, frame_h));
-    Mat img_RGB;
-    cvtColor(resized, img_RGB, COLOR_BGR2RGB);
-
-    // predict
-    uint8_t* byte_buffer = reinterpret_cast<uint8_t*>(img_RGB.data);
-    auto pred_result = model.predict(byte_buffer);
-
-    // print raw result
-    // printRawResult(pred_result);
-
-    // reshape result
-    auto result = reshapeResult(pred_result[0], outputSize); // extract single output & reshape
-
-    // process result
-    vector<tuple<int, int>> classCoords(18, make_tuple(-1,-1));
+/* generates coords and classes to be drawn */
+vector<tuple<double, double>> processResult(vector<vector<vector<vector<uint8_t>>>>& result, vector<int> outputSize, double THRESHOLD_CONFIDENCE){
+    vector<tuple<double, double>> classCoords(18, make_tuple(-1,-1));
     vector<float> classConfidences(18, THRESHOLD_CONFIDENCE);
     for (int i = 0; i < outputSize[1]; i++){
-        for (int j = 0; j < outputSize[2]; j++){
+        for (int j = 0; j < outputSize[2]; j++){ // for each of the boxes
             vector<uint8_t>::iterator maxConfPtr = max_element(result[0][i][j].begin(), result[0][i][j].end());
             uint8_t maxClass = distance(result[0][i][j].begin(), maxConfPtr);
-            if (maxClass < 18){
-                if ((*maxConfPtr) >= classConfidences[maxClass]){
-                    classCoords[maxClass] = make_tuple(i,j);
-                    classConfidences[maxClass] = (*maxConfPtr);
-                }
+            if (maxClass < 18 && (*maxConfPtr) >= classConfidences[maxClass]){
+                classCoords[maxClass] = make_tuple(j,i);
+                classConfidences[maxClass] = (*maxConfPtr);
             }
         }
     }
+    return classCoords;
+}
+
+int main(void){
+    /* edit model & test parameters here: */
+    string model_path = "./../dla_models/openpose_mobilenetv0.75_quant_1x368x368x3.dla";
+    string test_img_path = "./../stand.jpeg";
+    vector<int> outputSize = {1,46,46,57}; // model input img size (w,h) is defined as a macro above
+    
+    double OUTPUT_RATIO = 0.008926701731979847;
+    double OUTPUT_BIAS = 126;
+    double THRESHOLD_CONFIDENCE = 0.2/OUTPUT_RATIO + OUTPUT_BIAS;
+
+    /* initialize objects */
+    auto model = neuropl::Model(model_path);
+    namedWindow("Image");
+    Mat img = imread(test_img_path);
+    Mat img_RGB;
+    cropNResize(img, img_RGB, WIDTH, HEIGHT);
+    img_RGB.convertTo(img_RGB, CV_8UC3);
+    initCanvas(img_RGB); // init render
+
+    /* predict */
+    auto pred_result = model.predict(img_RGB.ptr());
+
+    /* print raw result */
+    // printf("output count: %lu, output size: %lu \n", size(pred_result), size(pred_result[0]));
+    // printRawResult(pred_result);
+    
+    /* process result */
+    auto result = reshapeResult(pred_result[0], outputSize); // extract single output & reshape
+    vector<tuple<double, double>> classCoords = processResult(result, outputSize, THRESHOLD_CONFIDENCE);
     // classCoords now contain most confident coords of each 18 significant classes,
     // if coord of a class is (-1,-1) then the class was not detected in image
-    for (auto output : classConfidences) {
-            printf("%d ", output);
-            printf("\n");
-        }
 
-    // render result image
-    track(classCoords, frame_w, frame_h);
-    drawPose(classCoords, canvas);
+    /* render result */
+    track(classCoords, WIDTH, HEIGHT); // resize & store coords in points
+    drawPose(points, canvas, img_RGB, "Image"); // draw points and lines
 
     return 0;
 }
