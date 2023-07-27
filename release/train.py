@@ -136,8 +136,9 @@ def augmentM2Data(default_data, falling_data):
   else: falling_data = augment(falling_data, abs(diff)) # more default, augment falling
   return default_data, falling_data
 
-def kerasQuantizeAndSave(model, inputs):
+def kerasQuantizeAndSave(model, default_data, falling_data):
   # quantize
+  inputs = np.concatenate((default_data, falling_data))
   def representative_dataset():
     for d in inputs: yield [tf.dtypes.cast(d, tf.float32)]
 
@@ -155,7 +156,6 @@ if __name__ == "__main__":
   m1_data = "./datasets/m1_data" # subfolders are classification labels (still/moving), each contain frames resized to 224x224
   vids_dir = "./datasets/vids/" # subfolders are labels (default/falling), each contain videos resized to 224x224
   train_m2_with_custom_data, m2_custom_data_path = True, "./datasets/model2_data"
-  
 
   '''
   generate model 1
@@ -179,4 +179,4 @@ if __name__ == "__main__":
   generate model 2
   '''
   m2 = trainM2(default_data, falling_data)
-  kerasQuantizeAndSave(m2)
+  kerasQuantizeAndSave(m2, default_data, falling_data)
