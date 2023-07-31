@@ -59,35 +59,7 @@ def calculate_frame_difference(video_path):
 
 
 # Path to your video files
-''' Old videos
-falling_paths = [
-                 "./datasets/model1_data_new/Fall/resizedk_fall_lobby_cut.mp4",
-                 "./datasets/model1_data_new/Fall/resizedk_fall_street_cut.mp4",
-                 "./datasets/model1_data_new/Fall/resizedk_fall_streetwithtrees_cut.mp4",
-                 "./datasets/model1_data_new/Fall/resized_IMG0480_falling.mp4",
-                 "./datasets/model1_data_new/Fall/resized_IMG0484_falling.mp4",
-                 "./datasets/model1_data_new/Fall/resized_IMG0485_falling.mp4",
-                 "./datasets/model1_data_new/Fall/resized_IMG1614_falling.mp4",
-                 "./datasets/model1_data_new/Fall/resized_IMG1615_falling.mp4",
-                 "./datasets/model1_data_new/Fall/resized_IMG1616_falling.mp4",
-                 "./datasets/model1_data_new/Fall/resized_s-fall3_cut.mp4",
-                 "./datasets/model1_data_new/Fall/resized_vid1_falling.mp4",
-                 "./datasets/model1_data_new/Fall/resized_vid2_falling.mp4",
-                 "./datasets/model1_data_new/Fall/resized_vid4_falling.mp4",
-                 "./datasets/model1_data_new/Fall/s-resized_s-fall2.mp4",
-                 "./datasets/model1_data_new/Fall/resizeds-fall3.mp4",
-                 "./datasets/model1_data_new/Fall/resizeds-fall4.mp4",
-                 "./datasets/model1_data_new/Fall/resizeds-fall5.mp4"]
-
-default_paths = [
-                 "./datasets/model1_data_new/Still/resizedk-still1.mp4",
-                 "./datasets/model1_data_new/Still/resizedk-still2.mp4",
-                 "./datasets/model1_data_new/Still/resized_s-still1.mp4",
-                 "./datasets/model1_data_new/Still/resizeds-still2.mp4",
-                 "./datasets/model1_data_new/Still/resizeds-still3.mp4",
-                 "./datasets/model1_data_new/Still/resizeds-still4.mp4"]
-'''
-
+# Add your video paths here
 falling_paths = [
                  "./datasets/vids/splitted/new_moving/resized_logitech-fall1.mp4",
                  "./datasets/vids/splitted/new_moving/resized_logitech-fall2.mp4",
@@ -144,12 +116,10 @@ for x in falling_paths:
     frame_diff_array = calculate_frame_difference(x)
     arr_of_diffs.append(frame_diff_array)
 
-# for elem in concatenated_diff:
-#     print(elem)
-
-# normalized_frame_diff = normalize_frame_differences(frame_diff_array)
-# print(np.min(concatenated_diff))
-# print(np.max(concatenated_diff))
+# Uncomment below
+# for x in default_paths:
+#     frame_diff_array = calculate_frame_difference(x)
+#     arr_of_diffs.append(frame_diff_array)
 
 # Normalize the array
 for x in arr_of_diffs:
