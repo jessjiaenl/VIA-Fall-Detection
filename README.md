@@ -6,12 +6,15 @@
 
 # Complete System Illustration (MobileNet Object Detection, Openpose, Fall Detection)
 
-**Overview of system features:**
+**Overview of system features:** 
+
 - The diagram is a complete illustration of the system that integrates object detection, openpose, and fall detection.
 - Object Detection and Open pose are adapted from open source projects
 - Fall Detection is custom made and trained
 </br>
-**Display interface and Hardware Usage**
+
+**Display interface and Hardware Usage:**
+
 - OpenCv was used to create the display GUI
 - Hardware usage: all system features are run and compiled on VIA's VAB-912.
 
