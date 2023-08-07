@@ -15,7 +15,7 @@
 
 **Display interface and Hardware Usage:**
 
-- OpenCv was used to create the display GUI
+- OpenCV was used to create the display GUI
 - Hardware usage: all system features are run and compiled on VIA's VAB-912.
 
   
