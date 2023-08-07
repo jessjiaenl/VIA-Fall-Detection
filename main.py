@@ -89,7 +89,8 @@ if __name__ == '__main__':
         model = Single_Model.SingleModel(model_paths[modelidx], [[1,368,368,3]], [[1,46,46,57]], np.uint8, np.uint8) 
     else: # object detection
         model = Single_Model.SingleModel(model_paths[modelidx], [[1,300,300,3]], [[1,1917,21],[1,1917,4]], np.uint8, np.float) 
-    ID = 0
+
+
     # Clear the holder file in case ran many times
     command_clean = "cp /dev/null cmd_for_id_detector.txt"
     subprocess.run(command_clean, shell=True)
