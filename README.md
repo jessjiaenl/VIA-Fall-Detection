@@ -2,7 +2,7 @@
 
 This project consists of three main components: Object Detection, Openpose, and Fall Detection. The pupose of this project is to integrate different AI applications into VIA's VAB912 module to demonstrate its high efficiency in running AI/ML applications.
 
-Object Detection and Openpose are adapted from open source codes and Fall Detection was researched and developed by VIA Technologies AIoT SW A intern team. The main developers are: Jessica Lee([jessjiaenl](https://github.com/jessjiaenl), Sylvia Chen([Aut0corr3ct](https://github.com/Aut0corr3ct), Clarence Lin([C1arence3](https://github.com/C1arence3), and Kevin Do([kevindo0720](https://github.com/kevindo0720?tab=repositories).
+Object Detection and Openpose are adapted from open source codes and Fall Detection was researched and developed by VIA Technologies AIoT SW A intern team. The main developers are: Jessica Lee([jessjiaenl](https://github.com/jessjiaenl)), Sylvia Chen([Aut0corr3ct](https://github.com/Aut0corr3ct)), Clarence Lin([C1arence3](https://github.com/C1arence3)), and Kevin Do([kevindo0720](https://github.com/kevindo0720?tab=repositories)).
 
 
 # VIA-Fall-Detection Project
