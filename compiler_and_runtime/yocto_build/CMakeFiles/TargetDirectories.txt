@@ -1,4 +1,0 @@
-/home/sylvia/VIA-Fall-Detection/compiler_and_runtime/yocto_build/CMakeFiles/compiler.dir
-/home/sylvia/VIA-Fall-Detection/compiler_and_runtime/yocto_build/CMakeFiles/runtime.dir
-/home/sylvia/VIA-Fall-Detection/compiler_and_runtime/yocto_build/CMakeFiles/edit_cache.dir
-/home/sylvia/VIA-Fall-Detection/compiler_and_runtime/yocto_build/CMakeFiles/rebuild_cache.dir

@@ -1,10 +1,6 @@
-import old_Fall_Detection
 import Fall_Detection
-import diffdiff_Fall_Detection
-import eight_Fall_Detection
 import Single_Model
 import GUI
-import oldGUI
 import cv2
 import numpy as np
 import time
@@ -34,7 +30,7 @@ def predictNRenderVid(modelcpy, vid_path, vid_path2):
         # Changes the model if you switched tabs
         if UI.switched == True:
             if UI.currtab == 0: 
-                modelcpy = eight_Fall_Detection.FallDet()
+                modelcpy = Fall_Detection.FallDet()
                 cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             elif UI.currtab == 1:
                 modelcpy = Single_Model.SingleModel(model_paths[UI.currtab], [[1,368,368,3]], [[1,46,46,57]], np.uint8, np.uint8)
@@ -81,10 +77,10 @@ if __name__ == '__main__':
     modelidx = 0
     ###################################################################
     
-    UI = oldGUI.oldGUI() # initilize UI
+    UI = GUI.oldGUI() # initilize UI
     model = None
     if modelidx == 0: # fall detection
-        model = eight_Fall_Detection.FallDet()
+        model = Fall_Detection.FallDet()
     elif modelidx == 1: # openpose
         model = Single_Model.SingleModel(model_paths[modelidx], [[1,368,368,3]], [[1,46,46,57]], np.uint8, np.uint8) 
     else: # object detection
