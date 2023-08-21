@@ -4,6 +4,8 @@ This project consists of three main components: Object Detection, Openpose, and 
 
 Object Detection and Openpose are adapted from open source codes and Fall Detection was researched and developed by VIA Technologies AIoT SW A intern team. The main developers are: Jessica Lee([jessjiaenl](https://github.com/jessjiaenl)), Sylvia Chen([Aut0corr3ct](https://github.com/Aut0corr3ct)), Clarence Lin([C1arence3](https://github.com/C1arence3)), and Kevin Do([kevindo0720](https://github.com/kevindo0720?tab=repositories)).
 
+Complete Project Presentation: [final presentation](https://docs.google.com/presentation/d/1XOdtXpLVWltolgEDuTy_I46u-v9FNQW0_XBGEURMjLk/edit#slide=id.g26808a48e2e_0_882)
+
 
 # VIA-Fall-Detection Project
 
