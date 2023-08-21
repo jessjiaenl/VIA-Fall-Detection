@@ -12,7 +12,10 @@ Object Detection and Openpose are adapted from open source codes and Fall Detect
 **Solution Proposal:** By leveraging computer vision techniques, we aim to build a system that transmits SOS signals to the rescue task forces during a fall. This is especially important when communication equipments are crushed after falling. To detect falling movements, two models are developed. The first model extracts features out of each video frame. The second model analyzes the outputs from from model 1 by taking in an array of 8 frames as a sliding window to detect falling movements.
 
 **Demo:**
+</br>
+
 ![Thumbnail](Thumbnail_demo.png)
+
 
 - video 1: https://www.youtube.com/watch?v=svt9KC_5Ggw&ab_channel=Aut0corr3ct
 - video 2: https://www.youtube.com/watch?v=xJPG7TsdZ6c&ab_channel=Aut0corr3ct
