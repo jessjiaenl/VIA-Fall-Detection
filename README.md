@@ -1,4 +1,4 @@
-# Project Description 
+# Summer Internship Project Description 
 
 This project consists of three main components: Object Detection, Openpose, and Fall Detection. The pupose of this project is to integrate different AI applications into VIA's VAB912 module to demonstrate its high efficiency in running AI/ML applications.
 
